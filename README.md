@@ -14,5 +14,5 @@ Yeah its pretty easy.
 Just include it as a shared library when building:
 
 ```bash
-$ clang -lwasp main.c -o main
+$ clang++ -lwasp main.cpp -o main
 ```
