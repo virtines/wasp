@@ -1,0 +1,2 @@
+#define HCALL_GET_ARG 0xA0
+#define HCALL_RETURN 0xA1

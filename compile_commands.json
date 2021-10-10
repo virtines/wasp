@@ -1,0 +1,57 @@
+[
+{
+  "directory": "/home/nick/dev/wasp/build",
+  "command": "/usr/bin/c++  -I/home/nick/dev/wasp/./include -fPIC   -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS  -fno-exceptions -o CMakeFiles/VirtinePass.dir/pass/pass.cpp.o -c /home/nick/dev/wasp/pass/pass.cpp",
+  "file": "/home/nick/dev/wasp/pass/pass.cpp"
+},
+{
+  "directory": "/home/nick/dev/wasp/build",
+  "command": "/usr/bin/c++  -I/home/nick/dev/wasp/./include -fPIC   -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS  -fno-exceptions -o CMakeFiles/VirtinePass.dir/pass/VirtineCompiler.cpp.o -c /home/nick/dev/wasp/pass/VirtineCompiler.cpp",
+  "file": "/home/nick/dev/wasp/pass/VirtineCompiler.cpp"
+},
+{
+  "directory": "/home/nick/dev/wasp/build",
+  "command": "/usr/bin/c++  -I/home/nick/dev/wasp/./include -fPIC   -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS  -fno-exceptions -o CMakeFiles/VirtinePass.dir/pass/command.cpp.o -c /home/nick/dev/wasp/pass/command.cpp",
+  "file": "/home/nick/dev/wasp/pass/command.cpp"
+},
+{
+  "directory": "/home/nick/dev/wasp/build",
+  "command": "/usr/bin/c++ -Dwasp_EXPORTS -I/home/nick/dev/wasp/./include -fPIC   -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/wasp.dir/src/Virtine.cpp.o -c /home/nick/dev/wasp/src/Virtine.cpp",
+  "file": "/home/nick/dev/wasp/src/Virtine.cpp"
+},
+{
+  "directory": "/home/nick/dev/wasp/build",
+  "command": "/usr/bin/c++ -Dwasp_EXPORTS -I/home/nick/dev/wasp/./include -fPIC   -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/wasp.dir/src/Cache.cpp.o -c /home/nick/dev/wasp/src/Cache.cpp",
+  "file": "/home/nick/dev/wasp/src/Cache.cpp"
+},
+{
+  "directory": "/home/nick/dev/wasp/build",
+  "command": "/usr/bin/c++ -Dwasp_EXPORTS -I/home/nick/dev/wasp/./include -fPIC   -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/wasp.dir/src/binding.cpp.o -c /home/nick/dev/wasp/src/binding.cpp",
+  "file": "/home/nick/dev/wasp/src/binding.cpp"
+},
+{
+  "directory": "/home/nick/dev/wasp/build/bench",
+  "command": "/usr/bin/c++  -I/home/nick/dev/wasp/./include -I/home/nick/dev/wasp/bench/include  -o CMakeFiles/bench_vmrun.dir/vmrun/main.cpp.o -c /home/nick/dev/wasp/bench/vmrun/main.cpp",
+  "file": "/home/nick/dev/wasp/bench/vmrun/main.cpp"
+},
+{
+  "directory": "/home/nick/dev/wasp/build/bench",
+  "command": "/usr/bin/c++  -I/home/nick/dev/wasp/./include -I/home/nick/dev/wasp/bench/include  -o CMakeFiles/bench_create_cache.dir/create_cache/main.cpp.o -c /home/nick/dev/wasp/bench/create_cache/main.cpp",
+  "file": "/home/nick/dev/wasp/bench/create_cache/main.cpp"
+},
+{
+  "directory": "/home/nick/dev/wasp/build/bench",
+  "command": "/usr/bin/c++  -I/home/nick/dev/wasp/./include -I/home/nick/dev/wasp/bench/include  -o CMakeFiles/bench_create.dir/create/main.cpp.o -c /home/nick/dev/wasp/bench/create/main.cpp",
+  "file": "/home/nick/dev/wasp/bench/create/main.cpp"
+},
+{
+  "directory": "/home/nick/dev/wasp/build/bench",
+  "command": "/usr/bin/c++  -I/home/nick/dev/wasp/./include -I/home/nick/dev/wasp/bench/include  -o CMakeFiles/bench_image_size.dir/image_size/main.cpp.o -c /home/nick/dev/wasp/bench/image_size/main.cpp",
+  "file": "/home/nick/dev/wasp/bench/image_size/main.cpp"
+},
+{
+  "directory": "/home/nick/dev/wasp/build/bench",
+  "command": "/usr/bin/c++  -I/home/nick/dev/wasp/./include -I/home/nick/dev/wasp/bench/include  -o CMakeFiles/bench_pthread.dir/pthread/main.cpp.o -c /home/nick/dev/wasp/bench/pthread/main.cpp",
+  "file": "/home/nick/dev/wasp/bench/pthread/main.cpp"
+}
+]
