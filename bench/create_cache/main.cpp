@@ -18,6 +18,7 @@ int main(int argc, char **argv) {
     auto start = wasp::tsc();
     auto *virtine = virtine_cache.get();
 
+    // make sure the regs are setup right lol
     auto regs = virtine->read_regs();
     regs.rip = 0;
     virtine->write_regs(regs);
