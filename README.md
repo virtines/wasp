@@ -1,5 +1,8 @@
 # Wasp
 
+Wasp is a library hypervisor designed to aid in the development
+and deployment of virtines
+
 ## Build + Install
 
 ```bash
