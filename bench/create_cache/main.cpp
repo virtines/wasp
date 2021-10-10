@@ -17,6 +17,10 @@ int main(int argc, char **argv) {
   for (int i = 0; i < 1000; i++) {
     auto start = wasp::tsc();
     auto *virtine = virtine_cache.get();
+
+    auto regs = virtine->read_regs();
+    regs.rip = 0;
+    virtine->write_regs(regs);
     // run until any exit
     virtine->run();
     virtine_cache.put(virtine);

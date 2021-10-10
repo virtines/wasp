@@ -34,11 +34,11 @@ wasp::Virtine *wasp::Cache::allocate() {
     m_reset->regions.clear();
     m_reset->regions.push_back(std::move(m));
   }
-  printf("allocate!\n");
 
   v->set_reset_mask(m_reset);
   v->allocate_memory(m_memsz);
   v->reset();
+
   return v;
 }
 
