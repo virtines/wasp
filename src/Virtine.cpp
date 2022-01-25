@@ -1,3 +1,15 @@
+/* 
+ * This file is part of the Wasp hypervisor developed at Illinois Institute of
+ * Technology (HExSA Lab) and Northwestern University with funding from the
+ * United States National Science Foundation.
+ *
+ * Copyright (c) 2022, Nicholas Wanninger
+ *
+ * Author:  Nicholas Wanninger <ncw@u.northwestern.edu>
+ *
+ * This is free software.  You are permitted to use,
+ * redistribute, and modify it as specified in the file "LICENSE.txt".
+ */
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/kvm.h>
