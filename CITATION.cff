@@ -3,10 +3,10 @@ message: "If you use this software, please cite it as below."
 type: article
 authors:
 - family-names: "Wanninger"
-	given-names: "Nick"
+  given-names: "Nick"
 - family-names: "Bowden"
-	given-names: "Joshua"
+  given-names: "Joshua"
 - family-names: "Hale"
-	given-names: "Kyle"
+  given-names: "Kyle"
 title: "Isolating Functions at the Hardware Limit with Virtines"
 doi: "pending"
