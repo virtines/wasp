@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+
+preferred-citation:
+  type: article
+  authors:
+	- family-names: "Wanninger"
+		given-names: "Nick"
+	- family-names: "Bowden"
+		given-names: "Joshua"
+	- family-names: "Hale"
+		given-names: "Kyle"
+	title: "Isolating Functions at the Hardware Limit with Virtines"
+	doi: "pending"
