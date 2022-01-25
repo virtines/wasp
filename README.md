@@ -8,7 +8,7 @@ manually by invoking a runtime API, or automatically by using our Clang/LLVM com
 extensions. In the latter case, a develper can create a virtine by simply adding
 a keyword to a C function:
 
-```
+```C
 virtine int foo (int arg) {
     // code
 } 
@@ -32,8 +32,8 @@ The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 ## Build Instructions
 
 ```bash
-$ make
-$ sudo make install
+make
+sudo make install
 ```
 
 Yeah its pretty easy.
@@ -43,13 +43,16 @@ Yeah its pretty easy.
 Just include it as a shared library when building:
 
 ```bash
-$ clang++ -lwasp main.cpp -o main
+clang++ -lwasp main.cpp -o main
 ```
 
 ## Run Virtine Tests
 TODO
 
 ## Reproduce Paper Results
+TODO
+
+## Code Structure
 TODO
 
 ## Acknowledgements
