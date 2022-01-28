@@ -68,7 +68,9 @@ data/fig12:
 	mkdir -p $@
 fig12_data: data/fig12 data/fig12/image_size.csv
 fig12.pdf: fig12_data
-	plotgen/fig12-image-size.py ${DATADIR}/fig12/ $@
+	plotgen/fig12-image-size.py data/fig12/ $@
+fig12_gold.pdf:
+	plotgen/fig12-image-size.py data_golden/fig12/ $@
 
 
 
@@ -86,16 +88,13 @@ data/fig8/wasp_create_cache_async.csv:
 	build/bench/bench_create_cache_async > $@
 data/fig8/wasp_vmrun.csv:
 	build/bench/bench_vmrun > $@
-
-
 data/fig8:
 	mkdir -p $@
-
 fig8_data: data/fig8 data/fig8/linux_thread.csv data/fig8/linux_process.csv data/fig8/wasp_create.csv data/fig8/wasp_create_cache.csv data/fig8/wasp_create_cache_async.csv data/fig8/wasp_vmrun.csv
-
-
 fig8.pdf: fig8_data
-	plotgen/fig8-wasp-latency.py ${DATADIR}/fig8/ $@
+	plotgen/fig8-wasp-latency.py data/fig8/ $@
+fig8_gold.pdf:
+	plotgen/fig8-wasp-latency.py data_golden/fig8/ $@
 
 
 .PHONY: bench $(ALLPLOTS)
