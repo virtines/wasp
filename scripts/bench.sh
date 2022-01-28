@@ -3,7 +3,7 @@
 
 DATE=$(date '+%Y-%m-%d')
 
-OUTDIR="data/$USERNAME/$HOSTNAME/$DATE"
+OUTDIR="data"
 mkdir -p $OUTDIR
 benchmarks=$(ls build/bench/bench* | xargs -n 1 basename | sed 's/bench_//')
 

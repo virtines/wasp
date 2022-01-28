@@ -9,6 +9,8 @@
 #include <wasp/util.h>
 #include <bench.h>
 
+#define round_up(x, y) (((x) + (y)-1) & ~((y)-1))
+
 unsigned long nanos(void) {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -25,12 +27,12 @@ int main(int argc, char **argv) {
 
   printf("# trial, bytes, microseconds\n");
   int count = 0;
-  for (size_t bytes = 4096; bytes <= max_size; bytes <<= 1) {
-    for (int j = 0; j < 100; j++) {
+  for (size_t bytes = 32; bytes <= max_size; bytes <<= 1) {
+    for (int j = 0; j < 10; j++) {
       count++;
       auto start = nanos();
       wasp::Virtine v;
-      v.allocate_memory(bytes);
+      v.allocate_memory(round_up(bytes, 4096));
       void *dst = v.translate<void>(0);
       memcpy(dst, src, bytes);
       v.load_raw(MINIMAL_VIRTINE, MINIMAL_VIRTINE_SIZE, 0);
@@ -40,5 +42,4 @@ int main(int argc, char **argv) {
       printf("%d, %zu, %f\n", j, bytes, dur / 1000.0f);
     }
   }
-  printf("count %d\n", count);
 }

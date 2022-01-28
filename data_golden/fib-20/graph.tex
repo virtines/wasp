@@ -1,0 +1,82 @@
+\documentclass[letterpaper,11pt]{article}
+\usepackage{tabularx,amsmath,boxedminipage,graphicx}
+\usepackage[margin=1in,letterpaper]{geometry}
+\usepackage{cite}
+\usepackage{pgfplots}
+\usepackage{float}
+\usepackage[makeroom]{cancel}
+
+
+\usepackage[final]{hyperref} % adds hyper links inside the generated pdf file
+
+
+
+
+\newcounter{Question}[section]
+\newenvironment{Question}{\refstepcounter{Question}
+	 \noindent \textbf{Question~\theQuestion:} \rmfamily}{}
+
+
+
+\begin{document}
+
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\label{plot:avsrel}
+		\begin{axis}[
+				grid=both,
+				width=16cm, height=8cm,
+				xlabel={Trial},
+				scaled y ticks=false,
+				ymax=90000
+			]
+
+		\addplot[ thin, color=brown, mark=none ] table [col sep=comma] {16-no.csv};
+		\addlegendentry{16 bit}
+
+		\addplot[ thin, color=blue, mark=none ] table [col sep=comma] {32-no.csv};
+		\addlegendentry{32 bit}
+		
+		\addplot[ thin, color=red, mark=none ] table [col sep=comma] {64-no.csv};
+		\addlegendentry{64 bit}
+
+
+		
+		\end{axis}
+	\end{tikzpicture} \par
+	\caption{Host latency when calling non-recursive $fib(20)$ (in rdtsc cycles, no optimizations)}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\label{plot:avsrel}
+		\begin{axis}[
+				grid=both,
+				width=16cm, height=8cm,
+				xlabel={Trial},
+				scaled y ticks=false,
+				ymax=90000
+			]
+
+		\addplot[ thin, color=brown, mark=none ] table [col sep=comma] {16-opt.csv};
+		\addlegendentry{16 bit}
+
+		\addplot[ thin, color=blue, mark=none ] table [col sep=comma] {32-opt.csv};
+		\addlegendentry{32 bit}
+		
+		\addplot[ thin, color=red, mark=none ] table [col sep=comma] {64-opt.csv};
+		\addlegendentry{64 bit}
+
+
+		
+		\end{axis}
+	\end{tikzpicture} \par
+	\caption{Host latency when calling non-recursive $fib(20)$ (in rdtsc cycles, full optimizations)}
+\end{figure}
+
+
+\end{document}

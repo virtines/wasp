@@ -1,7 +1,7 @@
-.PHONY: bench
-
 CMAKE_ROOT=$(shell pwd)
 BUILD:=build/
+
+
 
 default:
 	@mkdir -p $(BUILD)
@@ -11,7 +11,7 @@ default:
 
 
 clean:
-	@rm -rf build
+	@rm -rf build 
 
 install:
 	@make -C $(BUILD) --no-print-directory install
@@ -53,3 +53,49 @@ build/fib.bin: example/fib/boot.asm example/fib/virtine.c
 
 
 js: default test-js build/ex_js_no_virtine build/ex_js_no_virtine_nt
+
+
+
+DATADIR?=data
+ALLPLOTS:=fig12.pdf fig8.pdf
+
+allplots: $(ALLPLOTS)
+
+
+data/fig12/image_size.csv:
+	build/bench/bench_image_size > $@
+data/fig12:
+	mkdir -p $@
+fig12_data: data/fig12 data/fig12/image_size.csv
+fig12.pdf: fig12_data
+	plotgen/fig12-image-size.py ${DATADIR}/fig12/ $@
+
+
+
+
+
+data/fig8/linux_thread.csv:
+	build/bench/bench_pthread > $@
+data/fig8/linux_process.csv:
+	build/bench/bench_process > $@
+data/fig8/wasp_create.csv:
+	build/bench/bench_create > $@
+data/fig8/wasp_create_cache.csv:
+	build/bench/bench_create_cache > $@
+data/fig8/wasp_create_cache_async.csv:
+	build/bench/bench_create_cache_async > $@
+data/fig8/wasp_vmrun.csv:
+	build/bench/bench_vmrun > $@
+
+
+data/fig8:
+	mkdir -p $@
+
+fig8_data: data/fig8 data/fig8/linux_thread.csv data/fig8/linux_process.csv data/fig8/wasp_create.csv data/fig8/wasp_create_cache.csv data/fig8/wasp_create_cache_async.csv data/fig8/wasp_vmrun.csv
+
+
+fig8.pdf: fig8_data
+	plotgen/fig8-wasp-latency.py ${DATADIR}/fig8/ $@
+
+
+.PHONY: bench $(ALLPLOTS)

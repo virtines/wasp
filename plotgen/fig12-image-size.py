@@ -18,10 +18,9 @@ plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=BIGGER_SIZE)
 
 
-fname     = sys.argv[1]
-
-data_dir  = "../data/"
-input_file = 'imagesize.csv'
+data_dir  = sys.argv[1]
+fname = sys.argv[2]
+input_file = 'image_size.csv'
 
 y = pd.read_csv(data_dir + "/" + input_file, comment='#', names=['trial', 'bytes', 'microseconds'])
 
@@ -35,34 +34,16 @@ for b in y['bytes'].unique():
 fig, ax = plt.subplots(1, figsize=(12,6))
 
 x = np.linspace(0, 1, len(y['bytes'].unique()))
-print(y['bytes'].unique())
-print(means)
 xlabs = ['32B', '64B', '128B', '256B', '512B', '1K', '2K', '4K', '8K', '16K', '32K', '64K', '128K', '265K', '512K', '1M', '2M', '4M', '8M', '16M']
-
-
-
 
 plt.xticks(x, xlabs)
 ax.errorbar(x, means, yerr=stddevs, lw=4,marker='o', markerfacecolor='white',ms=14, markeredgewidth=4,ecolor='black',capsize=6, zorder=3)
 ax.tick_params(axis='x', rotation=90)
 
-
-
-
-
-ax.grid(b=True, which='both', axis='y', alpha=0.5, zorder=0)
-
-#print('\n\n\n')
-# i can't figure this out!
-# for i, b in enumerate(y['bytes'].unique()):
-    # label = xlabs[i]
-    # mean = means[i]
-    # print(b, mean)
-    # ax.annotate('%,2f', xy=(b, mean), textcoords='data', horizontalalignment='right', verticalalignment='bottom')
-
+ax.grid(visible=True, which='both', axis='y', alpha=0.5, zorder=0)
 
 ax.set_ylabel('Latency (ms)')
-ax.set_yticks([0, 500, 1000, 1500, 2000, 2500])
+# ax.set_yticks([0, 500, 1000, 1500, 2000, 2500])
 ax.set_yticklabels(['0.0', '0.5', '1.0', '1.5', '2.0', '2.5'])
 ax.set_xlabel('Virtine image Size')
 plt.tight_layout()
