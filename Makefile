@@ -1,6 +1,6 @@
 CMAKE_ROOT=$(shell pwd)
 BUILD:=build/
-VENV:=venv
+VENV:=venv/
 
 
 all: wasp virtine_bins build/fib.bin
@@ -22,7 +22,8 @@ virtine_bins: build/fib.virtine build/fib16.virtine build/fib32.virtine build/fi
 
 
 clean:
-	@rm -rf build 
+	@rm -rf $(BUILD)
+	@rm -rf $(VENV)
 
 install:
 	@make -C $(BUILD) --no-print-directory install
