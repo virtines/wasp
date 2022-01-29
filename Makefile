@@ -180,7 +180,7 @@ table1_data: data/table1.csv
 
 
 alldata: table1_data fig3_data fig8_data fig11_data fig12_data
-artifacts: alldata $(ALLPLOTS)
+artifacts: all alldata $(ALLPLOTS)
 
 
 

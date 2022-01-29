@@ -32,17 +32,17 @@ install(
 add_subdirectory(bench/)
 
 
-find_package(LLVM REQUIRED CONFIG)
-add_definitions(${LLVM_DEFINITIONS})
-include_directories(${LLVM_INCLUDE_DIRS})
-list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
-include(AddLLVM)
-
-
-add_llvm_library(VirtinePass MODULE
-	pass/pass.cpp
-	pass/VirtineCompiler.cpp
-	pass/command.cpp
-	PLUGIN_TOOL
-	opt
-)
+# find_package(LLVM REQUIRED CONFIG)
+# add_definitions(${LLVM_DEFINITIONS})
+# include_directories(${LLVM_INCLUDE_DIRS})
+# list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
+# include(AddLLVM)
+# 
+# 
+# add_llvm_library(VirtinePass MODULE
+# 	pass/pass.cpp
+# 	pass/VirtineCompiler.cpp
+# 	pass/command.cpp
+# 	PLUGIN_TOOL
+# 	opt
+# )
