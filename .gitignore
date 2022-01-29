@@ -1,5 +1,6 @@
 build/
 data/
+venv/
 .cache/
 compile_commands.json
 *.pdf
