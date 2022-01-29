@@ -30,7 +30,7 @@ wasp::Virtine *wasp::Cache::allocate() {
   auto *v = new wasp::Virtine();
 
   if (m_reset == NULL) {
-    printf("m_reset is null!\n");
+    // printf("m_reset is null!\n");
 
     m_reset = new wasp::ResetState;
     // copy the initial reset state

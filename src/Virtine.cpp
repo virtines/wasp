@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the Wasp hypervisor developed at Illinois Institute of
  * Technology (HExSA Lab) and Northwestern University with funding from the
  * United States National Science Foundation.
@@ -192,11 +192,20 @@ top:
   }
 
   int stat = m_run->exit_reason;
+	// printf("stat = %d\n", stat);
 
   // handle hypercalls early
   if (stat == KVM_EXIT_IO) {
     // the port, 0xFA is a special exit port in wasp
-    if (m_run->io.port == 0xFA) return wasp::ExitReason::Exited;
+    if (m_run->io.port == 0xFA) {
+			/*
+      wasp::VirtineRegisters r;
+      read_regs(r);
+
+      fprintf(stderr, "rax:0x%016llx\n", r.rax);
+			*/
+      return wasp::ExitReason::Exited;
+    }
     // otherwise, it was a regular old hypercall that you need to interrogate
     return wasp::ExitReason::HyperCall;
   }
