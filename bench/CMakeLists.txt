@@ -1,5 +1,9 @@
 include_directories(include/)
 
+
+add_executable(bench_boottime boottime/main.cpp)
+target_link_libraries(bench_boottime wasp)
+
 add_executable(bench_run run/main.cpp)
 target_link_libraries(bench_run wasp)
 

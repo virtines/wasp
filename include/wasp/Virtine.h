@@ -21,10 +21,10 @@
 namespace wasp {
 
   enum ExitReason {
-    Unknown,
-    Crashed,
-    Interrupted,
-    Halted,  // generic case, typically not bad to just continue afterwards
+    Unknown = 0,
+    Crashed = 1,
+    Interrupted = 2,
+    Halted = 3,  // generic case, typically not bad to just continue afterwards
     HyperCall,
     Exited,
   };
@@ -59,6 +59,9 @@ namespace wasp {
 
     /* This function allocates the virtine's memory (single, contiguous block) */
     bool allocate_memory(size_t memsz);
+
+		// sets the memory to be some pointer given by the user. This does not free!
+    bool set_unowned_memory(size_t memsz, void *mem);
 
     // save the reset state with no memory regions (clears existing ones)
     void save_reset_state(void);

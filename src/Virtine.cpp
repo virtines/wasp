@@ -29,7 +29,7 @@ struct cpuid_regs {
 #define MAX_KVM_CPUID_ENTRIES 100
 static void filter_cpuid(struct kvm_cpuid2 *);
 
-// #define SANITY_CHECK
+#define SANITY_CHECK
 
 
 static int g_kvmfd = -1;
@@ -55,12 +55,14 @@ wasp::Virtine::Virtine() {
 
   // create a VM
   m_vmfd = ioctl(m_kvmfd, KVM_CREATE_VM, 0);
+  // allocate the single virtual CPU core for the virtual machine.
+  m_cpufd = ioctl(m_vmfd, KVM_CREATE_VCPU, 0);
 
-  int kvm_run_size = ioctl(m_kvmfd, KVM_GET_VCPU_MMAP_SIZE, nullptr);
 
+
+#if 1
   // get cpuid info
-  struct kvm_cpuid2 *kvm_cpuid;
-
+  struct kvm_cpuid2 *kvm_cpuid = NULL;
   kvm_cpuid = (kvm_cpuid2 *)calloc(1, sizeof(*kvm_cpuid) + MAX_KVM_CPUID_ENTRIES * sizeof(*kvm_cpuid->entries));
   kvm_cpuid->nent = MAX_KVM_CPUID_ENTRIES;
   if (ioctl(m_kvmfd, KVM_GET_SUPPORTED_CPUID, kvm_cpuid) < 0) throw std::runtime_error("KVM_GET_SUPPORTED_CPUID failed");
@@ -68,8 +70,6 @@ wasp::Virtine::Virtine() {
    * significantly) */
   filter_cpuid(kvm_cpuid);
 
-  // allocate the single virtual CPU core for the virtual machine.
-  m_cpufd = ioctl(m_vmfd, KVM_CREATE_VCPU, 0);
   // init the cpuid
   int cpuid_err = ioctl(m_cpufd, KVM_SET_CPUID2, kvm_cpuid);
   if (cpuid_err != 0) {
@@ -77,6 +77,10 @@ wasp::Virtine::Virtine() {
     throw std::runtime_error("KVM_SET_CPUID2 failed");
   }
 
+  free(kvm_cpuid);
+#endif
+
+  int kvm_run_size = ioctl(m_kvmfd, KVM_GET_VCPU_MMAP_SIZE, nullptr);
   // allocate the "run state"
   m_run = (struct kvm_run *)mmap(NULL, kvm_run_size, PROT_READ | PROT_WRITE, MAP_SHARED, m_cpufd, 0);
 
@@ -100,10 +104,6 @@ wasp::Virtine::Virtine() {
 
   // save the initial reset state
   save_reset_state();
-
-
-
-  free(kvm_cpuid);
 }
 
 
@@ -122,6 +122,18 @@ void wasp::Virtine::save_reset_state(std::vector<ResetMemory> &&regions) {
   rst().regions = std::move(regions);
 }
 
+bool wasp::Virtine::set_unowned_memory(size_t memsz, void *mem) {
+  struct kvm_userspace_memory_region code_region = {
+      .slot = 0,             // allocate in slot zero
+      .guest_phys_addr = 0,  // allocate at 0x0000'0000
+      .memory_size = memsz,
+      .userspace_addr = (uint64_t)mem,
+  };
+
+  // actually map the region into the virtine
+  ioctl(m_vmfd, KVM_SET_USER_MEMORY_REGION, &code_region);
+  return true;
+}
 
 bool wasp::Virtine::allocate_memory(size_t memsz) {
   if (memsz == 0) throw std::logic_error("zero memory size does not make sense");

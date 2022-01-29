@@ -10,9 +10,10 @@
 
 
 
+#define NPOINTS 1000
+long data[NPOINTS];
 int main(int argc, char **argv) {
-  printf("# trial, latency (cycles)\n");
-  for (int i = 0; i < 1000; i++) {
+  for (int i = 0; i < NPOINTS; i++) {
     auto start = wasp::tsc();
 
     pthread_t thd;
@@ -26,6 +27,12 @@ int main(int argc, char **argv) {
 
     auto end = wasp::tsc();
 
-    printf("%d, %lu\n", i, end - start);
+    data[i] = end - start;
+  }
+
+
+  printf("# trial, latency (cycles)\n");
+  for (int i = 0; i < NPOINTS; i++) {
+    printf("%d, %lu\n", i, data[i]);
   }
 }
