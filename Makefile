@@ -2,7 +2,7 @@ CMAKE_ROOT=$(shell pwd)
 BUILD:=build/
 
 
-all: wasp virtine_bins
+all: wasp virtine_bins build/fib.bin
 
 
 wasp:
@@ -15,7 +15,7 @@ build/%.virtine: bench/virtines/%.asm
 	mkdir -p build
 	nasm -fbin -o $@ $<
 
-virtine_bins: build/fib16.virtine build/fib32.virtine build/fib64.virtine build/boottime.virtine
+virtine_bins: build/fib.virtine build/fib16.virtine build/fib32.virtine build/fib64.virtine build/boottime.virtine
 
 
 
@@ -49,11 +49,11 @@ test-js: bench/jsv/virtine.c.o bench/jsv/duktape.c.o
 	@objcopy -O binary build/jsinterp.o build/jsinterp.bin
 
 
-build/fib.bin: example/fib/boot.asm example/fib/virtine.c
+build/fib.bin: bench/fib/boot.asm bench/fib/virtine.c
 	@mkdir -p build/fib
-	@nasm -felf64 example/fib/boot.asm -o build/fib/boot.o
-	@gcc -O3 -nostdlib -c -o build/fib/virtine.o example/fib/virtine.c
-	@ld -T example/fib/rt.ld -o build/fib.elf build/fib/boot.o build/fib/virtine.o
+	@nasm -felf64 bench/fib/boot.asm -o build/fib/boot.o
+	@gcc -O3 -nostdlib -c -o build/fib/virtine.o bench/fib/virtine.c
+	@ld -T bench/fib/rt.ld -o build/fib.elf build/fib/boot.o build/fib/virtine.o
 	@objcopy -O binary build/fib.elf build/fib.bin
 
 
@@ -62,7 +62,7 @@ js: default test-js build/ex_js_no_virtine build/ex_js_no_virtine_nt
 
 
 DATADIR?=data
-ALLPLOTS:=fig3.pdf fig8.pdf fig12.pdf
+ALLPLOTS:=fig3.pdf fig8.pdf fig11.pdf fig12.pdf
 
 
 
@@ -114,6 +114,52 @@ fig8_gold.pdf:
 
 
 
+
+
+
+
+data/fig11/baseline_%.csv:
+	GET_BASELINE=yes build/bench/bench_fib $(patsubst data/fig11/baseline_%.csv,%, $@) > $@
+data/fig11/virtine_%.csv:
+	WASP_NO_SNAPSHOT=yes build/bench/bench_fib $(patsubst data/fig11/virtine_%.csv,%, $@) > $@
+data/fig11/virtine+snapshot_%.csv:
+	build/bench/bench_fib $(patsubst data/fig11/virtine+snapshot_%.csv,%, $@) > $@
+
+FIG11_DATA_FILES = data/fig11/baseline_0.csv \
+                   data/fig11/baseline_5.csv \
+                   data/fig11/baseline_10.csv \
+                   data/fig11/baseline_15.csv \
+                   data/fig11/baseline_20.csv \
+                   data/fig11/baseline_25.csv \
+                   data/fig11/baseline_30.csv \
+                   data/fig11/virtine_0.csv \
+                   data/fig11/virtine_5.csv \
+                   data/fig11/virtine_10.csv \
+                   data/fig11/virtine_15.csv \
+                   data/fig11/virtine_20.csv \
+                   data/fig11/virtine_25.csv \
+                   data/fig11/virtine_30.csv \
+                   data/fig11/virtine+snapshot_0.csv \
+                   data/fig11/virtine+snapshot_5.csv \
+                   data/fig11/virtine+snapshot_10.csv \
+                   data/fig11/virtine+snapshot_15.csv \
+                   data/fig11/virtine+snapshot_20.csv \
+                   data/fig11/virtine+snapshot_25.csv \
+                   data/fig11/virtine+snapshot_30.csv 
+data/fig11:
+	@mkdir -p $@
+fig11_data: data/fig11 $(FIG11_DATA_FILES)
+fig11.pdf: fig11_data
+	@plotgen/fig11-fib-latency.py data/fig11 $@
+fig11_gold.pdf:
+	@plotgen/fig11-fib-latency.py data_golden/fig11 $@
+
+
+
+
+
+
+
 data/fig12/image_size.csv:
 	build/bench/bench_image_size > $@
 data/fig12:
@@ -133,7 +179,7 @@ data/table1.csv:
 table1_data: data/table1.csv
 
 
-alldata: table1_data fig3_data fig8_data fig12_data
+alldata: table1_data fig3_data fig8_data fig11_data fig12_data
 artifacts: alldata $(ALLPLOTS)
 
 

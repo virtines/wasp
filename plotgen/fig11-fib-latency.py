@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -9,7 +10,7 @@ from matplotlib import cm
 mpl.rcParams['hatch.linewidth']  = 0.5
 barwidth = 0.25
 
-data_dir = '../../wasp/data/fib/tinker-2.cs.iit.edu'
+data_dir = sys.argv[1]
 
 platforms = ['baseline', 'virtine', 'virtine+snapshot']
 fibargs   = ['0', '5', '10', '15', '20', '25', '30']
@@ -24,7 +25,7 @@ for n in fibargs:
 
     data['n'] = [n for i in range(0, 1000)]
     for plat in platforms:
-        df = pd.read_csv(f"{data_dir}/{plat}_{n}.csv", sep='\s*,\s*')
+        df = pd.read_csv(f"{data_dir}/{plat}_{n}.csv", sep='\s*,\s*', engine='python')
         data[plat] = df['latency'].tolist()
         # a.append(df[1])
     df = pd.DataFrame(data)
@@ -82,4 +83,4 @@ ax.grid(axis='y', zorder=-1, alpha=0.25)
 ax.set_axisbelow(True)
 plt.yscale('log')
 plt.tight_layout()
-plt.savefig(sys.argv[1])
+plt.savefig(sys.argv[2])
