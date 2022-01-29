@@ -1,5 +1,6 @@
 CMAKE_ROOT=$(shell pwd)
 BUILD:=build/
+VENV:=venv/
 
 
 all: wasp virtine_bins build/fib.bin
@@ -21,7 +22,8 @@ virtine_bins: build/fib.virtine build/fib16.virtine build/fib32.virtine build/fi
 
 
 clean:
-	@rm -rf build 
+	@rm -rf $(BUILD)
+	@rm -rf $(VENV)
 
 install:
 	@make -C $(BUILD) --no-print-directory install
@@ -64,7 +66,9 @@ js: default test-js build/ex_js_no_virtine build/ex_js_no_virtine_nt
 DATADIR?=data
 ALLPLOTS:=fig3.pdf fig8.pdf fig11.pdf fig12.pdf
 
-
+venv:
+	@python3 -m venv $(VENV)
+	@$(VENV)/bin/pip install -r plotgen/requirements.txt
 
 
 data/fig3/fib16.csv:
@@ -76,10 +80,10 @@ data/fig3/fib64.csv:
 data/fig3:
 	@mkdir -p $@
 fig3_data: data/fig3 data/fig3/fib16.csv data/fig3/fib32.csv data/fig3/fib64.csv
-fig3.pdf: fig3_data
-	plotgen/fig3-mode-latency.py data/fig3/ $@
-fig3_gold.pdf:
-	plotgen/fig3-mode-latency.py data_golden/fig3/ $@
+fig3.pdf: fig3_data venv
+	$(VENV)/bin/python plotgen/fig3-mode-latency.py data/fig3/ $@
+fig3_gold.pdf: venv
+	$(VENV)/bin/python plotgen/fig3-mode-latency.py data_golden/fig3/ $@
 
 
 
@@ -105,10 +109,10 @@ data/fig8/wasp_vmrun.csv:
 data/fig8:
 	@mkdir -p $@
 fig8_data: data/fig8 data/fig8/linux_thread.csv data/fig8/linux_process.csv data/fig8/wasp_create.csv data/fig8/wasp_create_cache.csv data/fig8/wasp_create_cache_async.csv data/fig8/wasp_vmrun.csv
-fig8.pdf: fig8_data
-	plotgen/fig8-wasp-latency.py data/fig8/ $@
-fig8_gold.pdf:
-	plotgen/fig8-wasp-latency.py data_golden/fig8/ $@
+fig8.pdf: fig8_data venv
+	$(VENV)/bin/python plotgen/fig8-wasp-latency.py data/fig8/ $@
+fig8_gold.pdf: venv
+	$(VENV)/bin/python plotgen/fig8-wasp-latency.py data_golden/fig8/ $@
 
 
 
@@ -149,10 +153,10 @@ FIG11_DATA_FILES = data/fig11/baseline_0.csv \
 data/fig11:
 	@mkdir -p $@
 fig11_data: data/fig11 $(FIG11_DATA_FILES)
-fig11.pdf: fig11_data
-	@plotgen/fig11-fib-latency.py data/fig11 $@
-fig11_gold.pdf:
-	@plotgen/fig11-fib-latency.py data_golden/fig11 $@
+fig11.pdf: fig11_data venv
+	@$(VENV)/bin/python plotgen/fig11-fib-latency.py data/fig11 $@
+fig11_gold.pdf: venv
+	@$(VENV)/bin/python plotgen/fig11-fib-latency.py data_golden/fig11 $@
 
 
 
@@ -165,10 +169,10 @@ data/fig12/image_size.csv:
 data/fig12:
 	@mkdir -p $@
 fig12_data: data/fig12 data/fig12/image_size.csv
-fig12.pdf: fig12_data
-	plotgen/fig12-image-size.py data/fig12/ $@
-fig12_gold.pdf:
-	plotgen/fig12-image-size.py data_golden/fig12/ $@
+fig12.pdf: fig12_data venv
+	$(VENV)/bin/python plotgen/fig12-image-size.py data/fig12/ $@
+fig12_gold.pdf: venv
+	$(VENV)/bin/python plotgen/fig12-image-size.py data_golden/fig12/ $@
 
 
 
