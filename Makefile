@@ -3,7 +3,7 @@ BUILD:=build/
 VENV:=venv/
 
 
-all: wasp virtine_bins build/fib.bin
+all: wasp virtine_bins build/fib.bin libc
 
 
 wasp:
@@ -25,7 +25,17 @@ clean:
 	@rm -rf $(BUILD)
 
 install:
-	@make -C $(BUILD) --no-print-directory install
+	@mkdir -p /usr/local/lib/virtine
+	@mkdir -p /usr/local/include/wasp
+	@install -m 755 build/libwasp.so /usr/local/lib/libwasp.so
+	@install -m 755 include/virtine.h /usr/local/include/virtine.h
+	@install -m 755 -D include/wasp/* -t /usr/local/include/wasp/
+	@install -m 755 build/VirtinePass.so /usr/local/lib/virtine/VirtinePass.so
+	@install -m 755 build/libc.a /usr/local/lib/virtine/virtine_libc.a
+	@install -m 755 build/libm.a /usr/local/lib/virtine/virtine_libm.a
+	@install -m 755 pass/rt/boot64.asm /usr/local/lib/virtine/boot64.asm
+	@install -m 755 pass/rt/link64.ld /usr/local/lib/virtine/link64.ld
+	@install -m 755 pass/vcc /usr/local/bin/vcc
 
 
 
@@ -42,11 +52,17 @@ build/ex_js_no_virtine: bench/js/novirtine.cpp
 build/ex_js_no_virtine_nt: bench/js/novirtine-nt.cpp
 	@clang++ -O3 -lm -Iinclude/ -o $@ $^
 
+
+
+libc: build/libc.a
+build/libc.a:
+	scripts/build_newlib.sh
+
 # build jsinterp.bin from example/js/rt
-test-js: bench/jsv/virtine.c.o bench/jsv/duktape.c.o
+test-js: build/libc.a bench/jsv/virtine.c.o bench/jsv/duktape.c.o
 	@echo " LD " $^
 	@nasm -felf64 example/js/rt/boot.asm -o build/jsv/boot.o
-	@ld -T example/js/rt/rt.ld -o build/jsinterp.o build/jsv/boot.o $^ /usr/local/lib/virtine/virtine_libc.a /usr/local/lib/virtine/virtine_libm.a
+	@ld -T example/js/rt/rt.ld -o build/jsinterp.o build/jsv/boot.o $^ build/libc.a build/libc.a
 	@objcopy -O binary build/jsinterp.o build/jsinterp.bin
 
 

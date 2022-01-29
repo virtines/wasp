@@ -25,7 +25,7 @@ namespace wasp {
     Crashed = 1,
     Interrupted = 2,
     Halted = 3,  // generic case, typically not bad to just continue afterwards
-    HyperCall,
+    HyperCall = 4,
     Exited,
   };
 

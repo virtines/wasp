@@ -52,8 +52,7 @@ namespace {
       // llvm::errs() << *fn.getParent() << "\n";
       auto section = fn.getSection();
       if (section.startswith("$__VIRTINE__")) {
-        printf("mod: %s function %s is a virtine in %s.\n", fn.getParent()->getName().data(), fn.getName().data(),
-               section.data());
+        // printf("mod: %s function %s is a virtine in %s.\n", fn.getParent()->getName().data(), fn.getName().data(), section.data());
 
         auto fname = fn.getName().data();
         auto &ctx = fn.getContext();
@@ -80,7 +79,6 @@ namespace {
         auto argptr = llvm::PointerType::get(arg_struct_type, 0);
 
         auto args = builder.CreateAlloca(arg_struct_type);
-        ;
         args->setName("argument_struct");
 
         int i = 0;
@@ -94,12 +92,6 @@ namespace {
           } else {
             builder.CreateStore(&arg, ptr);
           }
-
-          /*
-auto tmp = builder.CreateAlloca(arg.getType());
-builder.CreateStore(&arg, tmp);
-builder.CreateStore(builder.CreateLoad(tmp), ptr);
-          */
         }
 
 
@@ -116,9 +108,6 @@ builder.CreateStore(builder.CreateLoad(tmp), ptr);
         if (wasp_run_func == nullptr) {
           std::vector<llvm::Type *> args;
 
-          // void wasp_run_virtine(const char *code, size_t codesz, size_t
-          //                         memsz, void *arg, size_t argsz);
-
           args.push_back(charptr_type);  // char *code
           args.push_back(size_t_type);   // size_t codesz
           args.push_back(size_t_type);   // size_t memsz
@@ -129,22 +118,18 @@ builder.CreateStore(builder.CreateLoad(tmp), ptr);
           auto wasp_run_type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), args, false);
 
 
-          wasp_run_func =
-              llvm::Function::Create(wasp_run_type, llvm::Function::ExternalLinkage, "wasp_run_virtine", mod);
+          wasp_run_func = llvm::Function::Create(wasp_run_type, llvm::Function::ExternalLinkage, "wasp_run_virtine", mod);
         }
 
-
-
         auto *codearray_ty = llvm::ArrayType::get(chartype, code.size());
-
-
         auto *code_global = new llvm::GlobalVariable(*mod, codearray_ty, false, llvm::GlobalValue::PrivateLinkage,
-                                                     0,  // has initializer, specified below
-                                                     FMT(50, "__virtine_%s_code", fn.getName().data()));
+            0,  // has initializer, specified below
+            FMT(50, "__virtine_%s_code", fn.getName().data()));
 
 
         std::vector<llvm::Constant *> data;
-        for (uint8_t byte : code) data.push_back(llvm::ConstantInt::get(chartype, byte, false));
+        for (uint8_t byte : code)
+          data.push_back(llvm::ConstantInt::get(chartype, byte, false));
 
         llvm::Constant *init = llvm::ConstantArray::get(codearray_ty, data);
         code_global->setInitializer(init);
@@ -174,8 +159,7 @@ builder.CreateStore(builder.CreateLoad(tmp), ptr);
           // means we have the address of the second struct in memory (the size
           // of the first)
           auto NULL_PTR = llvm::ConstantPointerNull::get(llvm::PointerType::get(arg_struct_type, 0));
-          auto size_ptr = builder.CreateGEP(arg_struct_type, NULL_PTR,
-                                            llvm::ConstantInt::get(ctx, llvm::APInt(32, 1, true)), "size_hack");
+          auto size_ptr = builder.CreateGEP(arg_struct_type, NULL_PTR, llvm::ConstantInt::get(ctx, llvm::APInt(32, 1, true)), "size_hack");
           auto size = builder.CreatePtrToInt(size_ptr, size_t_type, "size");
           argv.push_back(size);
 
@@ -183,13 +167,13 @@ builder.CreateStore(builder.CreateLoad(tmp), ptr);
           llvm::Value *config = llvm::ConstantPointerNull::get(charptr_type);
 
           if (section.startswith("$__VIRTINE__cfg=")) {
-            printf("this one has a config...\n");
+            // printf("this one has a config...\n");
             auto s = section.slice(strlen("$__VIRTINE__cfg="), section.size());
-            printf("s: %s\n", s.data());
-						config = fn.getParent()->getNamedGlobal(s);
+            // printf("s: %s\n", s.data());
+            config = fn.getParent()->getNamedGlobal(s);
           }
 
-					argv.push_back(config);
+          argv.push_back(config);
 
           builder.CreateCall(wasp_run_func, argv);
         }
@@ -199,7 +183,7 @@ builder.CreateStore(builder.CreateLoad(tmp), ptr);
         for (auto &arg : fn.args()) {
           int ind = i++;
           if (arg.getType()->isPointerTy()) {
-            printf("need to restore %d\n", ind);
+            // printf("need to restore %d\n", ind);
             std::vector<llvm::Value *> indices(2);
             indices[0] = llvm::ConstantInt::get(ctx, llvm::APInt(32, 0, true));
             indices[1] = llvm::ConstantInt::get(ctx, llvm::APInt(32, ind, true));
@@ -227,9 +211,11 @@ builder.CreateStore(builder.CreateLoad(tmp), ptr);
         // clear the section so the linker can do what it wants...
         fn.setSection("");
 
+				/*
         printf("===================================================================\n");
         fn.print(llvm::errs(), NULL);
         printf("===================================================================\n");
+				*/
 
         return true;
 
@@ -243,13 +229,12 @@ builder.CreateStore(builder.CreateLoad(tmp), ptr);
 }  // end of anonymous namespace
 
 char VirtinePass::ID = 0;
-static llvm::RegisterPass<VirtinePass> X("virtine", "Virtine Compiler Pass", false /* Only looks at CFG */,
-                                         false /* Analysis Pass */);
+static llvm::RegisterPass<VirtinePass> X("virtine", "Virtine Compiler Pass", false /* Only looks at CFG */, false /* Analysis Pass */);
 
-static llvm::RegisterStandardPasses Y(llvm::PassManagerBuilder::EP_EarlyAsPossible,
-                                      [](const llvm::PassManagerBuilder &Builder, llvm::legacy::PassManagerBase &PM) {
-                                        PM.add(new VirtinePass());
-                                      });
+static llvm::RegisterStandardPasses Y(
+    llvm::PassManagerBuilder::EP_EarlyAsPossible, [](const llvm::PassManagerBuilder &Builder, llvm::legacy::PassManagerBase &PM) {
+      PM.add(new VirtinePass());
+    });
 
 
 

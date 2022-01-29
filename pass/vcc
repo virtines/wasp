@@ -1,0 +1,6 @@
+#!/bin/bash
+
+clang \
+	-fno-stack-protector \
+	-Wl,-rpath=/usr/local/lib -Xclang -load -Xclang \
+	/usr/local/lib/virtine/VirtinePass.so -lm -lwasp -Wno-unused-command-line-argument -g $@

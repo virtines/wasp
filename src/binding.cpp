@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the Wasp hypervisor developed at Illinois Institute of
  * Technology (HExSA Lab) and Northwestern University with funding from the
  * United States National Science Foundation.
@@ -23,8 +23,7 @@
 static std::map<size_t, std::unique_ptr<wasp::Cache>> cached_virtines;
 std::mutex virtine_cache_lock;
 
-static inline wasp::Cache &get_cache(const char *code, size_t codesz,
-                                     size_t memsz) {
+static inline wasp::Cache &get_cache(const char *code, size_t codesz, size_t memsz) {
   auto found = cached_virtines.find(memsz);
   if (found == cached_virtines.end()) {
     auto c = std::make_unique<wasp::Cache>(memsz);
@@ -37,14 +36,70 @@ static inline wasp::Cache &get_cache(const char *code, size_t codesz,
 }
 
 bool hypercall_allowed(int nr, uint64_t hypercall_whitelist) {
-  if (nr == 0xFF)
-    return true;
+  if (nr == 0xFF) return true;
 
   return (hypercall_whitelist >> nr) & 1;
 }
 
-extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz,
-                                 void *arg, size_t argsz, void *vconfig) {
+
+
+/* eflags masks */
+#define CC_C 0x0001
+#define CC_P 0x0004
+#define CC_A 0x0010
+#define CC_Z 0x0040
+#define CC_S 0x0080
+#define CC_O 0x0800
+
+#define TF_SHIFT 8
+#define IOPL_SHIFT 12
+#define VM_SHIFT 17
+#define TF_MASK 0x00000100
+#define IF_MASK 0x00000200
+#define DF_MASK 0x00000400
+#define IOPL_MASK 0x00003000
+#define NT_MASK 0x00004000
+#define RF_MASK 0x00010000
+#define VM_MASK 0x00020000
+#define AC_MASK 0x00040000
+#define VIF_MASK 0x00080000
+#define VIP_MASK 0x00100000
+#define ID_MASK 0x00200000
+
+void dump_trapframe(wasp::VirtineRegisters *r) {
+#define GET(name) (r->name)
+#define dump(reg) printf("%3s=%016llx ", #reg, GET(reg))
+  dump(rax);
+  dump(rbx);
+  dump(rcx);
+  dump(rdx);
+  printf("\n");
+  dump(rsi);
+  dump(rdi);
+  dump(rbp);
+  dump(rsp);
+  printf("\n");
+  dump(r8);
+  dump(r9);
+  dump(r10);
+  dump(r11);
+  printf("\n");
+  dump(r12);
+  dump(r13);
+  dump(r14);
+  dump(r15);
+  printf("\n");
+  dump(rip);
+  printf("flg=%016llx ", r->rflags);
+  printf(" [%c%c%c%c%c%c%c]\n", r->rflags & DF_MASK ? 'D' : '-', r->rflags & CC_O ? 'O' : '-', r->rflags & CC_S ? 'S' : '-',
+      r->rflags & CC_Z ? 'Z' : '-', r->rflags & CC_A ? 'A' : '-', r->rflags & CC_P ? 'P' : '-', r->rflags & CC_C ? 'C' : '-');
+  printf("Backtrace:\n");
+
+#undef dump
+  printf("\n");
+}
+
+extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz, void *arg, size_t argsz, void *vconfig) {
   // if WASP_NO_SNAPSHOT is not set, use snapshots
   static int g_use_snapshots = getenv("WASP_NO_SNAPSHOT") == NULL;
 
@@ -80,11 +135,8 @@ extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz,
 
   int count = 0;
   while (!done) {
-#if 0
-    auto regs = vm->read_regs();
-    printf("> rip=%08llx, rsp=%08llx\n", regs.rip, regs.rsp);
-#endif
     int res = vm->run();
+
     count++;
 
     if (res == wasp::ExitReason::HyperCall) {
@@ -95,96 +147,90 @@ extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz,
       long long arg3 = regs.rcx;
       void *ptr = 0;
 #define TRANSLATE(type, addr) (type)((off_t)ram + (addr))
-
       if (hypercall_allowed(nr, hypercall_whitelist)) {
         switch (regs.rdi) {
-        case 0xFF: {
-          if (use_snapshots) {
-            regs.rip += 2; // skip over the out instruction
-            vm->write_regs(regs);
-            virtine_cache_lock.lock();
-            auto &cache = get_cache(code, codesz, memsz);
-            virtine_cache_lock.unlock();
-            std::vector<wasp::ResetMemory> regions;
-            arg1 = 0;
-            wasp::ResetMemory m;
-            m.size = arg2 - arg1;
-            m.data = malloc(m.size);
-            m.address = arg1;
-            // printf("save region 0x%08lx-%08lx, rip=0x%08llx\n", m.address,
-            // m.address + m.size, regs.rip);
+          case 0xFF: {
+            if (use_snapshots) {
+              regs.rip += 2;  // skip over the out instruction
+              vm->write_regs(regs);
+              virtine_cache_lock.lock();
+              auto &cache = get_cache(code, codesz, memsz);
+              virtine_cache_lock.unlock();
+              std::vector<wasp::ResetMemory> regions;
+              arg1 = 0;
+              wasp::ResetMemory m;
+              m.size = arg2 - arg1;
+              m.data = malloc(m.size);
+              m.address = arg1;
+              memcpy(m.data, vm->translate<void>(m.address), m.size);
+              regions.push_back(std::move(m));
 
-            memcpy(m.data, vm->translate<void>(m.address), m.size);
-            regions.push_back(std::move(m));
-
-            vm->save_reset_state(std::move(regions));
+              vm->save_reset_state(std::move(regions));
+            }
+            break;
           }
-          break;
-        }
-        case HCALL_exit:
-          done = true;
-          break;
+          case HCALL_exit:
+            done = true;
+            break;
 
-        case HCALL_close:
-          regs.rax = close(arg1);
-          break;
+          case HCALL_close:
+            regs.rax = close(arg1);
+            break;
 
-        case HCALL_open:
-          if (vm->validate_length(arg1, 256)) {
-            regs.rax = open(vm->translate<const char>(arg1), arg2, arg3);
+          case HCALL_open:
+            if (vm->validate_length(arg1, 256)) {
+              regs.rax = open(vm->translate<const char>(arg1), arg2, arg3);
+            }
+
+            break;
+
+          case HCALL_read:
+            if (vm->validate_length(arg2, arg3)) {
+              regs.rax = read(arg1, vm->translate<void>(arg2), arg3);
+            }
+            break;
+
+          case HCALL_write:
+            if (vm->validate_length(arg2, arg3)) {
+              ptr = vm->translate<void>(arg2);
+              regs.rax = write(arg1, ptr, arg3);
+            }
+            break;
+
+          case HCALL_fstat: {
+            if (vm->validate_length(arg2, sizeof(struct stat))) {
+              regs.rax = fstat(arg1, vm->translate<struct stat>(arg2));
+            }
+            // printf("fstat(%d) = %d\n", arg1, regs.rax);
+            break;
           }
-
-          break;
-
-        case HCALL_read:
-          if (vm->validate_length(arg2, arg3)) {
-            regs.rax = read(arg1, vm->translate<void>(arg2), arg3);
-          }
-          break;
-
-        case HCALL_write:
-          if (vm->validate_length(arg2, arg3)) {
-            ptr = vm->translate<void>(arg2);
-            regs.rax = write(arg1, ptr, arg3);
-          }
-          break;
-
-        case HCALL_fstat: {
-          if (vm->validate_length(arg2, sizeof(struct stat))) {
-            regs.rax = fstat(arg1, vm->translate<struct stat>(arg2));
-          }
-          // printf("fstat(%d) = %d\n", arg1, regs.rax);
-          break;
-        }
-        case HCALL_sbrk:
-        case HCALL_link:
-        case HCALL_lseek:
-        case HCALL_times:
-        case HCALL_unlink:
-        case HCALL_gettimeofday:
-        case HCALL_isatty:
-        default:
-          regs.rax = -ENOSYS;
-          break;
+          case HCALL_sbrk:
+          case HCALL_link:
+          case HCALL_lseek:
+          case HCALL_times:
+          case HCALL_unlink:
+          case HCALL_gettimeofday:
+          case HCALL_isatty:
+          default:
+            regs.rax = -ENOSYS;
+            break;
         }
       } else {
-#if 0
-				fprintf(stderr, "Virtine tried to use non-whitelisted hypercall %d\n", nr);
-				fprintf(stderr, "    Permitted hypercalls:");
-				for (int i = 0; i < sizeof(uint64_t) * 8; i++) {
-					if (hypercall_allowed(i, hypercall_whitelist))
-						fprintf(stderr, " %d", i);
-				}
-
-				fprintf(stderr, "\n");
-#endif
-
+        fprintf(stderr, "Virtine tried to use non-whitelisted hypercall %d\n", nr);
+        fprintf(stderr, "    Permitted hypercalls:");
+        for (int i = 0; i < sizeof(uint64_t) * 8; i++)
+          if (hypercall_allowed(i, hypercall_whitelist)) fprintf(stderr, " %d", i);
+        fprintf(stderr, "\n");
         regs.rax = -ENOSYS;
       }
     }
 
     if (res == wasp::ExitReason::Crashed) {
-      exit(-1);
+      fprintf(stderr, "[Virtine] FATAL - CRASHED.\n");
+      auto regs = vm->read_regs();
+      dump_trapframe(&regs);
+			done = true;
+      // exit(-1);
     }
 
     if (res == wasp::ExitReason::Exited) {
@@ -193,8 +239,7 @@ extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz,
   }
 
   // copy the argument out of the machine's ram
-  if (arg != NULL)
-    memcpy(arg, arg_pos, argsz);
+  if (arg != NULL) memcpy(arg, arg_pos, argsz);
 
   virtine_cache_lock.lock();
   get_cache(code, codesz, memsz).put(vm);

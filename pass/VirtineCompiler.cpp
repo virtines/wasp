@@ -171,16 +171,16 @@ llvm::Function *VirtineCompiler::create_main(llvm::Function &source) {
     indices[1] = llvm::ConstantInt::get(ctx, llvm::APInt(32, i, true));
     auto ptr = builder.CreateGEP(argtype, virtine_args, indices);
     builder.CreateStore(return_value, ptr);
-    printf("\n\n\n\n================================\n\n\n\n");
   }
 
 
   builder.CreateRet(nullptr);
 
-
+	/*
   printf("===================================================================\n");
   vmain->print(llvm::errs(), NULL);
   printf("===================================================================\n");
+	*/
 
   return vmain;
 }
