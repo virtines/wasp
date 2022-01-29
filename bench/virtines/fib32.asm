@@ -6,7 +6,6 @@ extern stack_start
 
 global _start
 _start:
-	cli
 
 	mov eax, gdtr32
 	lgdt [eax]

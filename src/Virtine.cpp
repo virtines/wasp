@@ -92,15 +92,15 @@ wasp::Virtine::Virtine() {
    * we need to cache the state early on in the lifecycle for the "reset" procedure
    * that facilitates cleaning virtines efficiently
    */
-
-  // save the initial reset state
-  save_reset_state();
-
   {
     auto regs = read_regs();
     regs.rip = regs.rsp = 0x8000;
     write_regs(regs);
   }
+
+  // save the initial reset state
+  save_reset_state();
+
 
 
   free(kvm_cpuid);
@@ -192,18 +192,12 @@ top:
   }
 
   int stat = m_run->exit_reason;
-	// printf("stat = %d\n", stat);
+  // printf("stat = %d\n", stat);
 
   // handle hypercalls early
   if (stat == KVM_EXIT_IO) {
     // the port, 0xFA is a special exit port in wasp
     if (m_run->io.port == 0xFA) {
-			/*
-      wasp::VirtineRegisters r;
-      read_regs(r);
-
-      fprintf(stderr, "rax:0x%016llx\n", r.rax);
-			*/
       return wasp::ExitReason::Exited;
     }
     // otherwise, it was a regular old hypercall that you need to interrogate
@@ -219,6 +213,7 @@ top:
     case KVM_EXIT_INTERNAL_ERROR:
     case KVM_EXIT_FAIL_ENTRY:
     case KVM_EXIT_MMIO: {
+#if 0
       wasp::VirtineRegisters r;
       read_regs(r);
       fprintf(stderr, "crash at 0x%016llx. stat=%d\n", r.rip, stat);
@@ -230,6 +225,7 @@ top:
         fprintf(stderr, " %02x", d[i]);
       }
       fprintf(stderr, "\n");
+#endif
       // probably a triple fault
       return wasp::ExitReason::Crashed;
     }

@@ -62,7 +62,7 @@ js: default test-js build/ex_js_no_virtine build/ex_js_no_virtine_nt
 DATADIR?=data
 ALLPLOTS:=fig3.pdf fig8.pdf fig12.pdf
 
-allplots: $(ALLPLOTS)
+artifacts: $(ALLPLOTS)
 
 
 

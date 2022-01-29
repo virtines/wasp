@@ -8,6 +8,8 @@
 
 
 // a cache where each virtine has 4k of memory
+#define NPOINTS 10000
+long data[NPOINTS];
 
 int main(int argc, char **argv) {
   FILE *stream = fopen(argv[1], "r");
@@ -20,22 +22,24 @@ int main(int argc, char **argv) {
   // printf("mem: %p\n", mem);
   fread(bin, sz, 1, stream);
   fclose(stream);
-
-
-  wasp::Cache virtine_cache(4096 * 32);
-  virtine_cache.set_binary(bin, sz, 0x8000);
+	fprintf(stderr, "bin %s %zu\n", argv[1], sz);
 
   printf("# trial, latency (cycles)\n");
 
   wasp::Virtine v;
   v.allocate_memory(0x8000 + round_up(sz, 4096));
-  for (int i = 0; i < 100000; i++) {
+  for (int i = 0; i < 10000; i++) {
     v.load_raw(bin, sz, 0x8000);
     auto start = wasp::tsc();
     // run until any exit
     v.run();
     auto end = wasp::tsc();
-    printf("%d, %lu\n", i, end - start);
-    v.reset();
+		data[i] = (end - start);
+		v.reset();
   }
+
+
+  for (int i = 0; i < 10000; i++) {
+    printf("%d, %lu\n", i, data[i]);
+	}
 }

@@ -5,8 +5,9 @@
 #include <wasp/Cache.h>
 
 
+#define NPOINTS 1000
+long data[NPOINTS];
 
-// a cache where each virtine has 4k of memory
 
 int main(int argc, char **argv) {
   wasp::Cache virtine_cache(4096);
@@ -14,7 +15,7 @@ int main(int argc, char **argv) {
   virtine_cache.set_binary(MINIMAL_VIRTINE, MINIMAL_VIRTINE_SIZE, 0);
 
   printf("# trial, latency (cycles)\n");
-  for (int i = 0; i < 1000; i++) {
+  for (int i = 0; i < NPOINTS; i++) {
     auto start = wasp::tsc();
     auto *virtine = virtine_cache.get();
 
@@ -26,6 +27,12 @@ int main(int argc, char **argv) {
     virtine->run();
     virtine_cache.put(virtine);
     auto end = wasp::tsc();
-    printf("%d, %lu\n", i, end - start);
+		data[i] = end - start;
+  }
+
+
+  printf("# trial, latency (cycles)\n");
+  for (int i = 0; i < NPOINTS; i++) {
+    printf("%d, %lu\n", i, data[i]);
   }
 }

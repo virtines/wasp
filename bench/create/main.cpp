@@ -5,12 +5,13 @@
 #include <wasp/Cache.h>
 
 
+#define NPOINTS 1000
+long data[NPOINTS];
 
 // measures the latency to allocate a virtine context in cycles
 int main(int argc, char **argv) {
-  printf("# trial, latency (cycles)\n");
 
-  for (int i = 0; i < 1000; i++) {
+  for (int i = 0; i < NPOINTS; i++) {
     auto start = wasp::tsc();
     wasp::Virtine v;
     v.allocate_memory(4096);
@@ -18,6 +19,12 @@ int main(int argc, char **argv) {
     // run until any exit
     v.run();
     auto end = wasp::tsc();
-    printf("%d, %lu\n", i, end - start);
+		data[i] = end - start;
+  }
+
+
+  printf("# trial, latency (cycles)\n");
+  for (int i = 0; i < NPOINTS; i++) {
+    printf("%d, %lu\n", i, data[i]);
   }
 }
