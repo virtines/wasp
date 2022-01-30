@@ -107,7 +107,7 @@ class VirtineJSEngine {
     bool done = false;
     std::string result;
 
-    *v->translate<int>(0) = do_teardown;
+    *v->translate<int>(0x1000) = do_teardown;
     while (!done) {
       int ex = v->run();
       if (ex == wasp::ExitReason::Crashed) {

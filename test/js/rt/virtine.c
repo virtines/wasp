@@ -55,8 +55,7 @@ void virtine_main(void) {
     printf("context is null!\n");
     return;
   }
-  int *do_teardown_ptr = NULL;
-  int do_teardown = 1;  // *do_teardown_ptr;
+  int do_teardown = *(int*)0x1000;
 
   duk_push_c_function(ctx, native_print, DUK_VARARGS);
   duk_put_global_string(ctx, "print");
