@@ -29,7 +29,7 @@ install(
 
 
 
-add_subdirectory(bench/)
+add_subdirectory(test/)
 
 
 find_package(LLVM REQUIRED CONFIG)

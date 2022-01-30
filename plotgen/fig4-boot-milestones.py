@@ -34,7 +34,7 @@ def read_files(data_dir, f):
 means    = {'kmain()': 0, 'after recv()': 0, 'after send()': 0}
 stddevs  = {'kmain()': 0, 'after recv()': 0, 'after send()': 0}
 
-a = read_files('../data/boottime', 'echo-server')
+a = read_files(sys.argv[1], 'echo-server')
 
 for i, k in enumerate(means.keys()):
     means[k]   = np.mean(remove_tukey(a, k, 1.5))
@@ -82,4 +82,4 @@ ax.margins(y=0.1)
 
 #plt.tight_layout()
 
-plt.savefig(sys.argv[1])
+plt.savefig(sys.argv[2])

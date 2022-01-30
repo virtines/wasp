@@ -93,10 +93,7 @@ void dump_trapframe(wasp::VirtineRegisters *r) {
   printf("flg=%016llx ", r->rflags);
   printf(" [%c%c%c%c%c%c%c]\n", r->rflags & DF_MASK ? 'D' : '-', r->rflags & CC_O ? 'O' : '-', r->rflags & CC_S ? 'S' : '-',
       r->rflags & CC_Z ? 'Z' : '-', r->rflags & CC_A ? 'A' : '-', r->rflags & CC_P ? 'P' : '-', r->rflags & CC_C ? 'C' : '-');
-  printf("Backtrace:\n");
-
 #undef dump
-  printf("\n");
 }
 
 extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz, void *arg, size_t argsz, void *vconfig) {
@@ -201,7 +198,6 @@ extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz, 
             if (vm->validate_length(arg2, sizeof(struct stat))) {
               regs.rax = fstat(arg1, vm->translate<struct stat>(arg2));
             }
-            // printf("fstat(%d) = %d\n", arg1, regs.rax);
             break;
           }
           case HCALL_sbrk:
@@ -229,8 +225,7 @@ extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz, 
       fprintf(stderr, "[Virtine] FATAL - CRASHED.\n");
       auto regs = vm->read_regs();
       dump_trapframe(&regs);
-			done = true;
-      // exit(-1);
+			abort();
     }
 
     if (res == wasp::ExitReason::Exited) {

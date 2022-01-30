@@ -3,7 +3,7 @@ BUILD:=build/
 VENV:=venv/
 
 
-all: wasp virtine_bins build/fib.bin libc
+all: wasp virtine_bins build/fib.bin libc build/echo_server.bin
 
 
 wasp:
@@ -12,7 +12,7 @@ wasp:
 	make --no-print-directory -C $(BUILD) -j $(shell nproc)
 	@cp $(BUILD)/compile_commands.json .
 
-build/%.virtine: bench/virtines/%.asm
+build/%.virtine: test/virtines/%.asm
 	mkdir -p build
 	nasm -fbin -o $@ $<
 
@@ -41,15 +41,15 @@ install:
 
 
 # build the javascript engine test
-build/jsv/%.c.o: bench/js/rt/%.c
+build/jsv/%.c.o: test/js/rt/%.c
 	@mkdir -p $(dir $@)
 	@echo " CC " $<
 	@gcc -O3 -nostdlib -c -o $@ $^
 
-build/ex_js_no_virtine: bench/js/novirtine.cpp
+build/ex_js_no_virtine: test/js/novirtine.cpp
 	@clang++ -O3 -lm -Iinclude/ -o $@ $^
 
-build/ex_js_no_virtine_nt: bench/js/novirtine-nt.cpp
+build/ex_js_no_virtine_nt: test/js/novirtine-nt.cpp
 	@clang++ -O3 -lm -Iinclude/ -o $@ $^
 
 
@@ -59,23 +59,29 @@ build/libc.a:
 	scripts/build_newlib.sh
 
 # build jsinterp.bin from example/js/rt
-test-js: build/libc.a bench/jsv/virtine.c.o bench/jsv/duktape.c.o
+test-js: build/libc.a test/jsv/virtine.c.o test/jsv/duktape.c.o
 	@echo " LD " $^
 	@nasm -felf64 example/js/rt/boot.asm -o build/jsv/boot.o
 	@ld -T example/js/rt/rt.ld -o build/jsinterp.o build/jsv/boot.o $^ build/libc.a build/libc.a
 	@objcopy -O binary build/jsinterp.o build/jsinterp.bin
 
 
-build/fib.bin: bench/fib/boot.asm bench/fib/virtine.c
+build/fib.bin: test/fib/boot.asm test/fib/virtine.c
 	@mkdir -p build/fib
-	@nasm -felf64 bench/fib/boot.asm -o build/fib/boot.o
-	@gcc -O3 -nostdlib -c -o build/fib/virtine.o bench/fib/virtine.c
-	@ld -T bench/fib/rt.ld -o build/fib.elf build/fib/boot.o build/fib/virtine.o
+	@nasm -felf64 test/fib/boot.asm -o build/fib/boot.o
+	@gcc -O3 -nostdlib -c -o build/fib/virtine.o test/fib/virtine.c
+	@ld -T test/fib/rt.ld -o build/fib.elf build/fib/boot.o build/fib/virtine.o
 	@objcopy -O binary build/fib.elf build/fib.bin
 
 
 js: default test-js build/ex_js_no_virtine build/ex_js_no_virtine_nt
 
+
+build/echo_server.bin:
+	nasm -felf32 -o build/echo_boot.o test/echo_server/boot.asm
+	gcc -fno-stack-protector -fno-pie -m32 -O3 -fno-common -ffreestanding -nostdinc -nostdlib -c -o build/echo_server_main.o test/echo_server/main.c
+	ld -melf_i386 -T test/echo_server/kernel.ld -o build/echo_server.elf build/echo_boot.o build/echo_server_main.o
+	objcopy -O binary build/echo_server.elf build/echo_server.bin
 
 
 DATADIR?=data
@@ -87,11 +93,11 @@ venv:
 
 
 data/fig3/fib16.csv:
-	build/bench/bench_run build/fib16.virtine > $@
+	build/test/run build/fib16.virtine > $@
 data/fig3/fib32.csv:
-	build/bench/bench_run build/fib32.virtine > $@
+	build/test/run build/fib32.virtine > $@
 data/fig3/fib64.csv:
-	build/bench/bench_run build/fib64.virtine > $@
+	build/test/run build/fib64.virtine > $@
 data/fig3:
 	@mkdir -p $@
 fig3_data: data/fig3 data/fig3/fib16.csv data/fig3/fib32.csv data/fig3/fib64.csv
@@ -102,24 +108,35 @@ fig3_gold.pdf: venv
 
 
 
+data/fig4/echo-server.csv:
+	build/test/echo_server > $@
+data/fig4:
+	@mkdir -p $@
+fig4_data: data/fig4 data/fig4/echo-server.csv
+fig4.pdf: fig4_data venv
+	$(VENV)/bin/python plotgen/fig4-boot-milestones.py data/fig4/ $@
+fig4_gold.pdf: venv
+	$(VENV)/bin/python plotgen/fig4-boot-milestones.py data_golden/fig4/ $@
+
+
 
 data/fig8/linux_thread.csv:
-	build/bench/bench_pthread > $@
+	build/test/pthread_overhead > $@
 
 data/fig8/linux_process.csv:
-	build/bench/bench_process > $@
+	build/test/process_overhead > $@
 
 data/fig8/wasp_create.csv:
-	build/bench/bench_create > $@
+	build/test/create > $@
 
 data/fig8/wasp_create_cache.csv:
-	build/bench/bench_create_cache > $@
+	build/test/create_cache > $@
 
 data/fig8/wasp_create_cache_async.csv:
-	build/bench/bench_create_cache_async > $@
+	build/test/create_cache_async > $@
 
 data/fig8/wasp_vmrun.csv:
-	build/bench/bench_vmrun > $@
+	build/test/vmrun > $@
 
 data/fig8:
 	@mkdir -p $@
@@ -138,11 +155,11 @@ fig8_gold.pdf: venv
 
 
 data/fig11/baseline_%.csv:
-	GET_BASELINE=yes build/bench/bench_fib $(patsubst data/fig11/baseline_%.csv,%, $@) > $@
+	GET_BASELINE=yes build/test/fib $(patsubst data/fig11/baseline_%.csv,%, $@) > $@
 data/fig11/virtine_%.csv:
-	WASP_NO_SNAPSHOT=yes build/bench/bench_fib $(patsubst data/fig11/virtine_%.csv,%, $@) > $@
+	WASP_NO_SNAPSHOT=yes build/test/fib $(patsubst data/fig11/virtine_%.csv,%, $@) > $@
 data/fig11/virtine+snapshot_%.csv:
-	build/bench/bench_fib $(patsubst data/fig11/virtine+snapshot_%.csv,%, $@) > $@
+	build/test/fib $(patsubst data/fig11/virtine+snapshot_%.csv,%, $@) > $@
 
 FIG11_DATA_FILES = data/fig11/baseline_0.csv \
                    data/fig11/baseline_5.csv \
@@ -180,7 +197,7 @@ fig11_gold.pdf: venv
 
 
 data/fig12/image_size.csv:
-	build/bench/bench_image_size > $@
+	build/test/image_size > $@
 data/fig12:
 	@mkdir -p $@
 fig12_data: data/fig12 data/fig12/image_size.csv
@@ -193,7 +210,7 @@ fig12_gold.pdf: venv
 
 data/table1.csv:
 	@mkdir -p data
-	build/bench/bench_boottime > data/table1.csv
+	build/test/boottime > data/table1.csv
 
 table1_data: data/table1.csv
 
@@ -204,4 +221,4 @@ artifacts: all alldata $(ALLPLOTS)
 
 
 
-.PHONY: bench $(ALLPLOTS) wasp
+.PHONY: test $(ALLPLOTS) wasp

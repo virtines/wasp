@@ -26,7 +26,7 @@ namespace wasp {
     Interrupted = 2,
     Halted = 3,  // generic case, typically not bad to just continue afterwards
     HyperCall = 4,
-    Exited,
+    Exited = 5,
   };
 
   using VirtineRegisters = kvm_regs;
