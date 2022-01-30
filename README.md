@@ -25,7 +25,7 @@ virtine int foo (int arg) {
   * [Contact](#contact)
 
 ## Paper
-* [Isolating Functions at the Hardware Limit with Virtines](#)<br>
+* [Isolating Functions at the Hardware Limit with Virtines](https://nickw.io/papers/eurosys22.pdf)<br>
 Nicholas C. Wanninger, Joshua J. Bowden, Kyle C. Hale<br>
 The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
@@ -33,6 +33,7 @@ The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
 ### Prerequisites
 - `nasm`
+- `libcurl` (usually comes with curl)
 - Must be on a Linux box with KVM support (`lsmod | grep kvm`)
 
 ```bash
