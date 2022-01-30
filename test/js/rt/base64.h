@@ -3,7 +3,7 @@
 static char values[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
 static char *getMem(unsigned long inputSize, char value) {
-  return malloc(1 + (value == ENCODE) ? ((inputSize * 4) / 3) : ((inputSize * 3) / 4));
+  return (char*)malloc(1 + (value == ENCODE) ? ((inputSize * 4) / 3) : ((inputSize * 3) / 4));
 }
 
 char *encode(const char *input) {

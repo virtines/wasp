@@ -40,29 +40,27 @@ install:
 
 
 
-# build the javascript engine test
-build/jsv/%.c.o: test/js/rt/%.c
-	@mkdir -p $(dir $@)
-	@echo " CC " $<
-	@gcc -O3 -nostdlib -c -o $@ $^
-
-build/ex_js_no_virtine: test/js/novirtine.cpp
-	@clang++ -O3 -lm -Iinclude/ -o $@ $^
-
-build/ex_js_no_virtine_nt: test/js/novirtine-nt.cpp
-	@clang++ -O3 -lm -Iinclude/ -o $@ $^
-
 
 
 libc: build/libc.a
 build/libc.a:
 	scripts/build_newlib.sh
 
+
+build/jsv/%.c.o: test/js/rt/%.c
+	@mkdir -p $(dir $@)
+	@echo " CC " $<
+	@gcc -O3 -nostdlib -c -o $@ $^
+
+
+build/js_baseline: test/js/baseline.cpp
+	g++ -O3 -lm -Iinclude/ -o $@ $^
+
 # build jsinterp.bin from example/js/rt
-test-js: build/libc.a test/jsv/virtine.c.o test/jsv/duktape.c.o
+build/jsinterp.bin: build/jsv/virtine.c.o build/jsv/duktape.c.o
 	@echo " LD " $^
-	@nasm -felf64 example/js/rt/boot.asm -o build/jsv/boot.o
-	@ld -T example/js/rt/rt.ld -o build/jsinterp.o build/jsv/boot.o $^ build/libc.a build/libc.a
+	@nasm -felf64 test/js/rt/boot.asm -o build/jsv/boot.o
+	@ld -T test/js/rt/rt.ld -o build/jsinterp.o build/jsv/boot.o $^ build/libc.a build/libm.a
 	@objcopy -O binary build/jsinterp.o build/jsinterp.bin
 
 
@@ -74,7 +72,7 @@ build/fib.bin: test/fib/boot.asm test/fib/virtine.c
 	@objcopy -O binary build/fib.elf build/fib.bin
 
 
-js: default test-js build/ex_js_no_virtine build/ex_js_no_virtine_nt
+js: build/jsinterp.bin build/js_baseline
 
 
 build/echo_server.bin:
@@ -205,6 +203,25 @@ fig12.pdf: fig12_data venv
 	$(VENV)/bin/python plotgen/fig12-image-size.py data/fig12/ $@
 fig12_gold.pdf: venv
 	$(VENV)/bin/python plotgen/fig12-image-size.py data_golden/fig12/ $@
+
+
+data/fig14/virtine_snapshot_noteardown.csv:
+	build/test/js -s test/js/test.js > $@
+data/fig14/virtine_snapshot.csv:
+	build/test/js -s -t test/js/test.js > $@
+data/fig14/virtine_noteardown.csv:
+	build/test/js test/js/test.js > $@
+data/fig14/virtine.csv:
+	build/test/js -t test/js/test.js > $@
+data/fig14/baseline.csv: js
+	build/js_baseline > $@
+data/fig14:
+	@mkdir -p $@
+fig14_data: data/fig14 data/fig14/baseline.csv data/fig14/virtine.csv data/fig14/virtine_noteardown.csv data/fig14/virtine_snapshot.csv data/fig14/virtine_snapshot_noteardown.csv
+fig14.pdf: fig14_data venv
+	$(VENV)/bin/python plotgen/fig14-js.py data/fig14/ $@
+fig14_gold.pdf: venv
+	$(VENV)/bin/python plotgen/fig14-js.py data_golden/fig14/ $@
 
 
 

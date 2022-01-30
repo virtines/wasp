@@ -7,6 +7,10 @@
 #include "rt/virtine.h"
 #include <wasp/Cache.h>
 #include <fcntl.h>
+#include <assert.h>
+#include <fstream>
+#include <iostream>
+#include <sstream>  //std::stringstream
 
 #define TEST_PATH "build/jsinterp.bin"
 
@@ -49,11 +53,9 @@ void dump_regs(wasp::VirtineRegisters *tf) {
          "\n"
          "RIP=" REGFMT " RFL=%08x [%c%c%c%c%c%c%c]\n",
 
-         GET(rax), GET(rbx), GET(rcx), GET(rdx), GET(rsi), GET(rdi), GET(rbp), GET(rsp), GET(r8),
-         GET(r9), GET(r10), GET(r11), GET(r12), GET(r13), GET(r14), GET(r15), GET(rip), eflags,
-         eflags & DF_MASK ? 'D' : '-', eflags & CC_O ? 'O' : '-', eflags & CC_S ? 'S' : '-',
-         eflags & CC_Z ? 'Z' : '-', eflags & CC_A ? 'A' : '-', eflags & CC_P ? 'P' : '-',
-         eflags & CC_C ? 'C' : '-');
+      GET(rax), GET(rbx), GET(rcx), GET(rdx), GET(rsi), GET(rdi), GET(rbp), GET(rsp), GET(r8), GET(r9), GET(r10), GET(r11), GET(r12),
+      GET(r13), GET(r14), GET(r15), GET(rip), eflags, eflags & DF_MASK ? 'D' : '-', eflags & CC_O ? 'O' : '-', eflags & CC_S ? 'S' : '-',
+      eflags & CC_Z ? 'Z' : '-', eflags & CC_A ? 'A' : '-', eflags & CC_P ? 'P' : '-', eflags & CC_C ? 'C' : '-');
 }
 
 
@@ -72,59 +74,52 @@ void dump_regs(wasp::VirtineRegisters *tf) {
 #define HCALL_isatty 12
 
 
-
-#define USE_CACHE
-
-const char argument[] = "HELLO THERE";
-
-int main(int argc, char **argv) {
-  FILE *stream = fopen(TEST_PATH, "r");
-  if (stream == NULL) return -1;
-
-  fseek(stream, 0, SEEK_END);
-  size_t sz = ftell(stream);
-  void *bin = malloc(sz);
-  fseek(stream, 0, SEEK_SET);
-  // printf("mem: %p\n", mem);
-  fread(bin, sz, 1, stream);
-  fclose(stream);
-
-#ifdef USE_CACHE
-  wasp::Cache cache(1024 * 1024 * 4);
-  cache.set_binary(bin, sz, 0x8000);
-#else
-
-  wasp::Virtine virtine;
-  virtine.allocate_memory(1024 * 1024 * 4);
-#endif
-
-  // cache.ensure(12);
-  printf("# trial, latency\n");
-  for (int i = 0; i < 1000; i++) {
-    auto start = wasp::time_us();
-
-#ifdef USE_CACHE
-    auto *v = cache.get();
-    wasp::Virtine &virtine = *v;
-#else
-    virtine.reset();
-    virtine.load_binary(bin, sz, 0x8000);
-#endif
+static bool use_snapshots = false;
+static bool do_teardown = false;
+static bool quiet = false;
 
 
-    size_t argsize = sizeof(argument);
+class VirtineJSEngine {
+  wasp::Cache cache;
+
+ public:
+  VirtineJSEngine() : cache(1024 * 1024 * 1) {
+    FILE *stream = fopen("build/jsinterp.bin", "r");
+    if (stream == NULL) abort();
+
+    fseek(stream, 0, SEEK_END);
+    size_t sz = ftell(stream);
+    void *bin = malloc(sz);
+    fseek(stream, 0, SEEK_SET);
+    // printf("mem: %p\n", mem);
+    fread(bin, sz, 1, stream);
+    fclose(stream);
+
+    cache.set_binary(bin, sz, 0x8000);
+  }
+
+
+  std::string evaluate(const std::string &code) {
+    void *argument = (void *)code.data();
+    size_t argsize = code.size();
+
+    wasp::Virtine *v = cache.get();
     bool done = false;
+    std::string result;
+
+    *v->translate<int>(0) = do_teardown;
     while (!done) {
-      // printf("\n\n======================================\n");
-      int ex = virtine.run();
-      if (ex == wasp::ExitReason::Crashed) break;
+      int ex = v->run();
+      if (ex == wasp::ExitReason::Crashed) {
+				printf("crash\n");
+				break;
+			}
       if (ex == wasp::ExitReason::Exited) {
-        // printf("Virtine exited!\n");
+				printf("exit\n");
         break;
       }
       if (ex == wasp::ExitReason::HyperCall) {
-        auto regs = virtine.read_regs();
-        // printf("hypercall number: %#llx from %#llx\n", regs.rdi, regs.rip);
+        auto regs = v->read_regs();
 
         int nr = regs.rdi;
         long long arg1 = regs.rsi;
@@ -132,30 +127,24 @@ int main(int argc, char **argv) {
         long long arg3 = regs.rcx;
         void *ptr = 0;
 
-        if (nr == 0xFF) {
-#ifdef USE_CACHE
-          regs.rip += 2;  // skip over the out instruction
-          virtine.write_regs(regs);
-          std::vector<wasp::ResetMemory> regions;
-          wasp::ResetMemory m;
-          m.size = arg2 - arg1;
-          m.data = malloc(m.size);
-          m.address = arg1;
-          memcpy(m.data, virtine.translate<void>(m.address), m.size);
-          regions.push_back(std::move(m));
-          virtine.save_reset_state(std::move(regions));
-#endif
+        if (regs.rdi == 0xFF) {
+          if (use_snapshots) {
+            regs.rip += 2;  // skip over the out instruction
+            v->write_regs(regs);
+            std::vector<wasp::ResetMemory> regions;
+            wasp::ResetMemory m;
+            m.size = arg2 - arg1;
+            m.data = malloc(m.size);
+            m.address = arg1;
+            memcpy(m.data, v->translate<void>(m.address), m.size);
+            regions.push_back(std::move(m));
+            v->save_reset_state(std::move(regions));
+          }
           continue;
         }
-#define TRANSLATE(type, addr) (type)((off_t)ram + (addr))
         switch (regs.rdi) {
           case HCALL_exit:
             done = true;
-            break;
-
-          case HCALL_open:
-          case HCALL_close:
-            regs.rax = -EPERM;  // close(arg1);
             break;
 
             // allow reading from file descriptor 0
@@ -163,7 +152,7 @@ int main(int argc, char **argv) {
             if (arg1 != 0) {
               regs.rax = -EPERM;
             } else {
-              regs.rax = read(arg1, virtine.translate<void>(arg2), arg3);
+              regs.rax = read(arg1, v->translate<void>(arg2), arg3);
             }
             break;
 
@@ -171,17 +160,13 @@ int main(int argc, char **argv) {
             if (arg1 != 1 && arg1 != 2) {
               regs.rax = -EPERM;
             } else {
-              ptr = virtine.translate<void>(arg2);
+              ptr = v->translate<void>(arg2);
               regs.rax = write(arg1, ptr, arg3);
             }
             break;
 
-
-            // size_t hcall_get_arg(void *buf, size_t bufsz);
-            //   if buf is NULL, return the size of the argument buffer in bytes
-            //   and don't give the virtine anything
           case HCALL_GET_ARG: {
-            ptr = virtine.translate<void>(arg1);
+            ptr = v->translate<void>(arg1);
             size_t size = arg2;
             if (arg1 == 0) {
               regs.rax = argsize;
@@ -196,17 +181,16 @@ int main(int argc, char **argv) {
             break;
           }
 
-            // void [[noreturn]] hcall_return(void *buf, size_t bufsz);
           case HCALL_RETURN: {
             done = true;
-
-            char *ptr = virtine.translate<char>(arg1);
+            char *ptr = v->translate<char>(arg1);
             size_t size = arg2;
-            ptr[size] = 0;
-            // printf("virtine done! %p: %s\n", ptr, (char *)ptr);
+            result = std::string(ptr, size);
             break;
           }
 
+          case HCALL_open:
+          case HCALL_close:
           case HCALL_fstat:
           case HCALL_sbrk:
           case HCALL_link:
@@ -220,20 +204,49 @@ int main(int argc, char **argv) {
             break;
         }
 
-        if (!done) virtine.write_regs(regs);
+        if (!done) v->write_regs(regs);
       }
-
-
-
-
-      // regs.rax++;
-      // virtine.write_regs(regs);
-      // break;
     }
-
-#ifdef USE_CACHE
     cache.put(v);
-#endif
+    return result;
+  }
+};
+
+int main(int argc, char **argv) {
+  int opt;
+  while ((opt = getopt(argc, argv, "qst")) != -1) {
+    switch (opt) {
+      case 'q':
+        quiet = true;
+        break;
+      case 's':
+        use_snapshots = true;
+        break;
+      case 't':
+        do_teardown = true;
+        break;
+    }
+  }
+
+  if (optind > argc) {
+    fprintf(stderr, "usage: js [st] file.js\n");
+    exit(EXIT_FAILURE);
+  }
+
+  VirtineJSEngine engine;
+
+  void *argument = 0;
+  size_t argsize = 0;
+
+  std::ifstream t(argv[optind]);
+  std::stringstream buffer;
+  buffer << t.rdbuf();
+  std::string code = buffer.str();  // str holds the content of the file
+
+  printf("# trial, latency\n");
+  for (int i = 0; i < 100; i++) {
+    auto start = wasp::time_us();
+    engine.evaluate(code);
     auto end = wasp::time_us();
     printf("%d,%lu\n", i, end - start);
   }

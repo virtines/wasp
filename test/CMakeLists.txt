@@ -4,6 +4,11 @@ include_directories(include/)
 add_executable(fib fib/main.cpp)
 target_link_libraries(fib wasp)
 
+
+add_executable(js js/host.cpp)
+target_link_libraries(js wasp)
+
+
 add_executable(boottime boottime/main.cpp)
 target_link_libraries(boottime wasp)
 

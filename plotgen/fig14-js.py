@@ -22,11 +22,11 @@ plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=BIGGER_SIZE)
 
-fname = sys.argv[1]
 NBARS = 4
 
-data_dir  = "../data/js/"
-files = ['js_baseline_tinker2.csv', 'js_virtine_tinker2.csv', 'js_virtine_tinker2_noteardown.csv', 'js_virtine_tinker2_snapshot.csv', 'js_virtine_tinker2_noteardown_snapshot.csv']
+data_dir  = sys.argv[1]
+files = ['baseline.csv', 'virtine.csv', 'virtine_noteardown.csv', 'virtine_snapshot.csv', 'virtine_snapshot_noteardown.csv']
+fname = sys.argv[2]
 
 bar_pos  = np.arange(NBARS)
 
@@ -60,7 +60,7 @@ ax.set_xticks([r + barwidth/2 for r in range(NBARS)])
 
 ax.legend(loc='lower left', bbox_to_anchor=(0, 1.02), fontsize=BIGGER_SIZE-4, ncol=2)
 ax.set_ylabel('Slowdown')
-ax.set_ylim(0,1.5)
+# ax.set_ylim(0,1.5)
 ax.grid(alpha=0.5, zorder=0, which='major', axis='y')
 ax.set_xticklabels("", rotation=90)
 plt.tight_layout()

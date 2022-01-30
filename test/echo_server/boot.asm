@@ -16,8 +16,6 @@ global _start
 _start:
 	rdtsc
 	rdtsc
-	rdtsc
-	rdtsc
 	mov [0], eax
 	mov [4], edx
 
