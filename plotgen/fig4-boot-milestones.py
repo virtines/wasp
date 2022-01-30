@@ -48,7 +48,7 @@ labels = ['0', '25K', '50K', '75K', '100K', '125K', '150K', '175K']
 # Create figure and plot a stem plot with the date
 fig, ax = plt.subplots(figsize=(8.8, 2), constrained_layout=True)
 
-ax.set_xticklabels(labels)
+# ax.set_xticklabels(labels)
 ax.set_xlabel("Cycles to pass boot milestone")
 
 mean_vals = [v for k,v in means.items()]
@@ -61,7 +61,7 @@ ax.plot(mean_vals, [0,0,0], "-o", color="k", markerfacecolor="w")  # Baseline an
 ax.set_ylim((-2, 4))
 # annotate lines
 i = 0
-std_strs = ['856', '45.7K', '45.5K']
+std_strs = list(map(str, map(int, std_vals))) #['856', '45.7K', '45.5K']
 for d, l, r in zip(mean_vals, [2,2,2], names):
     ax.annotate(r + f"\n$\sigma$={std_strs[i]}", xy=(d, l),
                 xytext=(-3, np.sign(l)*3), textcoords="offset points",
@@ -71,6 +71,9 @@ for d, l, r in zip(mean_vals, [2,2,2], names):
 
 # format xaxis with 4 month intervals
 #plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+
+xlabels = ['{:,.0f}'.format(x) + 'K' for x in ax.get_xticks()/1000]
+ax.set_xticklabels(xlabels)
 
 # remove y axis and spines
 ax.yaxis.set_visible(False)

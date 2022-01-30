@@ -87,7 +87,7 @@ int run_virtines(int iters) {
   fclose(stream);
 
 
-	// now that we have the server, fork!
+  // now that we have the server, fork!
   pid_t pid = fork();
   if (pid == 0) {
     run_http_clients(iters);
@@ -95,9 +95,10 @@ int run_virtines(int iters) {
   }
 
   printf("PAE,kmain(),after recv(),after send()\n");
-  wasp::Virtine v;
-  v.allocate_memory(0x4000 + round_up(sz, 4096));
   for (int i = 0; i < iters; i++) {
+		// *create* a virtine for each connection (don't reuse or cache)
+    wasp::Virtine v;
+    v.allocate_memory(0x4000 + round_up(sz, 4096));
     v.load_raw(bin, sz, 0x4000);
 
     /* wait for a connection request */
