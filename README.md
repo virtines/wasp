@@ -31,6 +31,10 @@ The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
 ## Build Instructions
 
+### Prerequisites
+- `nasm`
+- Must be on a Linux box with KVM support (`lsmod | grep kvm`)
+
 ```bash
 make
 sudo make install
