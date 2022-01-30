@@ -16,6 +16,7 @@
 #include <string.h>
 #include <wasp/Cache.h>
 #include <wasp/Virtine.h>
+#include <wasp/util.h>
 #include <wasp/binding.h>
 // for struct virtine_config
 #include "virtine.h"
@@ -239,4 +240,133 @@ extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz, 
   virtine_cache_lock.lock();
   get_cache(code, codesz, memsz).put(vm);
   virtine_cache_lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+#define C_RED 91
+#define C_GREEN 92
+#define C_YELLOW 93
+#define C_BLUE 94
+#define C_MAGENTA 95
+#define C_CYAN 96
+
+#define C_RESET 0
+#define C_GRAY 90
+
+static void set_color(int code) {
+  static int current_color = 0;
+  if (code != current_color) {
+    printf("\x1b[%dm", code);
+    current_color = code;
+  }
+}
+
+static void set_color_for(char c) {
+  if (c >= 'A' && c <= 'z') {
+    set_color(C_YELLOW);
+  } else if (c >= '!' && c <= '~') {
+    set_color(C_CYAN);
+  } else if (c == '\n' || c == '\r') {
+    set_color(C_GREEN);
+  } else if (c == '\a' || c == '\b' || c == 0x1b || c == '\f' || c == '\n' || c == '\r') {
+    set_color(C_RED);
+  } else if ((unsigned char)c == 0xFF) {
+    set_color(C_MAGENTA);
+  } else {
+    set_color(C_GRAY);
+  }
+}
+
+
+void wasp::hexdump(void *vbuf, size_t len) {
+  unsigned awidth = 4;
+
+  if (len > 0xFFFFL) awidth = 8;
+
+  unsigned char *buf = (unsigned char *)vbuf;
+  int w = 16;
+
+  // array of valid address checks
+  char valid[16];
+
+  int has_validated = 0;
+  off_t last_validated_page = 0;
+  int is_valid = 0;
+
+  for (unsigned long long i = 0; i < len; i += w) {
+    unsigned char *line = buf + i;
+
+
+    for (int c = 0; c < w; c++) {
+      off_t page = (off_t)(line + c) >> 12;
+
+      if (!has_validated || page != last_validated_page) {
+        is_valid = 1;
+        has_validated = 1;
+      }
+
+      valid[c] = is_valid;
+      last_validated_page = page;
+    }
+
+    set_color(C_RESET);
+    printf("|");
+    set_color(C_GRAY);
+
+    printf("%.*llx", awidth, i);
+
+    set_color(C_RESET);
+    printf("|");
+    for (int c = 0; c < w; c++) {
+      if (c % 8 == 0) {
+        printf(" ");
+      }
+
+      if (valid[c] == 0) {
+        set_color(C_RED);
+        printf("?? ");
+        continue;
+      }
+
+      if (i + c >= len) {
+        printf("   ");
+      } else {
+        set_color_for(line[c]);
+        printf("%02X ", line[c]);
+      }
+    }
+
+    set_color(C_RESET);
+    printf("|");
+    for (int c = 0; c < w; c++) {
+      if (c != 0 && (c % 8 == 0)) {
+        set_color(C_RESET);
+        printf(" ");
+      }
+
+
+      if (valid[c] == 0) {
+        set_color(C_RED);
+        printf("?");
+        continue;
+      }
+
+      if (i + c >= len) {
+        printf(" ");
+      } else {
+        set_color_for(line[c]);
+        printf("%c", (line[c] < 0x20) || (line[c] > 0x7e) ? '.' : line[c]);
+      }
+    }
+    set_color(C_RESET);
+    printf("|\n");
+  }
 }

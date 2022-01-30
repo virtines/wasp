@@ -20,6 +20,8 @@ using namespace std::chrono;
 
 namespace wasp {
 
+	void hexdump(void *buf, size_t len);
+
 
   inline uint64_t time_us(void) {
     return std::chrono::duration_cast<std::chrono::microseconds>(
