@@ -33,7 +33,7 @@ The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
 ### Prerequisites
 - `nasm`
-- `libcurl` (usually comes with curl)
+- `libcurl` dev headers (`libcurl-dev` on ubuntu)
 - Must be on a Linux box with KVM support (`lsmod | grep kvm`)
 
 ```bash
