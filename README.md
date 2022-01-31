@@ -36,7 +36,7 @@ The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 ### Prerequisites
 - `nasm`
 - `libcurl` dev headers (`libcurl-dev` on recent Ubuntu is an aliased package; we had to use `libcurl4-openssl-dev`)
-- `clang`
+- `clang` version 10 or newer
 - `llvm` and `llvm-dev`
 - `cmake` 
 
@@ -46,7 +46,7 @@ Wasp only support x86 (Intel, AMD) at the moment.
 For example, on an Ubuntu machine:
 
 ```bash
-sudo apt install -y cmake nasm llvm llvm-dev clang libcurl-dev
+sudo apt install -y cmake nasm llvm llvm-dev clang libcurl4-openssl-dev
 ```
 
 
@@ -59,7 +59,7 @@ make
 sudo make install
 ```
 
-TODO explain what make install is actually doing
+TODO: explain what make install is actually doing
 
 ## Run Virtine Tests
 TODO

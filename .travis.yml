@@ -9,6 +9,9 @@ addons:
       - cmake
       - llvm
       - llvm-dev
-      - clang
+      - clang-12
+      - libclang-12-dev
+      - gcc
+      - g++
 
 script: make && sudo make install && make smoketest
