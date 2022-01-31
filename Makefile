@@ -54,7 +54,7 @@ build/libc.a:
 build/jsv/%.c.o: test/js/rt/%.c
 	@mkdir -p $(dir $@)
 	@echo " CC " $<
-	@gcc -O3 -nostdlib -c -o $@ $^
+	@gcc -O3 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -fno-common -ffreestanding -nostdlib  -fno-stack-protector -c -o $@ $^
 
 
 build/js_baseline: test/js/baseline.cpp
