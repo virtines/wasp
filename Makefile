@@ -39,6 +39,10 @@ install:
 
 
 
+smoketest:
+	@vcc test/smoketest.c -o build/smoketest
+	build/smoketest
+
 
 
 
