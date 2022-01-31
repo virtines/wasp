@@ -35,12 +35,16 @@ The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
 ### Prerequisites
 - `nasm`
-- `libcurl` dev headers (`libcurl-dev` on ubuntu)
-- Must be on a Linux box with KVM support (`lsmod | grep kvm`), i.e. baremetal or supports nested virtualization
+- `libcurl` dev headers (`libcurl-dev` on recent Ubuntu is an aliased package; we had to use `libcurl4-openssl-dev`)
+- `clang`
+- `llvm` and `llvm-dev`
+- `cmake` 
+
+Additionally, you must be on a Linux box with KVM support (you can check with `lsmod | grep kvm`), i.e., a baremetal machine or one that supports nested virtualization.
+Wasp only support x86 (Intel, AMD) at the moment. 
 
 For example, on an Ubuntu machine:
 
-Tested on a chameleon cloud ubuntu 20.04.3 LTS (baremetal skylake, 48 cores, xeon gold 6126) kernel version 5.4.0-91-generic
 ```bash
 sudo apt install -y cmake nasm llvm llvm-dev clang libcurl-dev
 ```
@@ -60,7 +64,13 @@ TODO explain what make install is actually doing
 ## Run Virtine Tests
 TODO
 
-If the smoketest doesn't panic, wasp is functional at this point.
+```bash
+make smoketest
+```
+
+If the smoketest doesn't panic, wasp is functional at this point. We tested
+this most recently on Chameleon Cloud Ubuntu 20.04.3 LTS (baremetal Skylake, 48
+cores, Xeon Gold 6126) Kernel version 5.4.0-91-generic.
 
 ## Reproduce Paper Results
 
