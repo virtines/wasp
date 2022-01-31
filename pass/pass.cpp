@@ -11,7 +11,7 @@
 #include <string>
 
 #include "VirtineCompiler.h"
-
+#include <iostream>
 
 #include "llvm/Bitcode/BitcodeReader.h"
 #include "llvm/Bitcode/BitcodeWriter.h"
@@ -44,197 +44,223 @@ void debug_hexdump(void *vbuf, size_t len);
 
 
 namespace {
-  struct VirtinePass : public llvm::FunctionPass {
+  struct VirtinePass : public llvm::ModulePass {
     static char ID;
-    VirtinePass() : llvm::FunctionPass(ID) {}
-
-    bool runOnFunction(llvm::Function &fn) override {
-      // llvm::errs() << *fn.getParent() << "\n";
-      auto section = fn.getSection();
-      if (section.startswith("$__VIRTINE__")) {
-        // printf("mod: %s function %s is a virtine in %s.\n", fn.getParent()->getName().data(), fn.getName().data(), section.data());
-
-        auto fname = fn.getName().data();
-        auto &ctx = fn.getContext();
-        auto *mod = fn.getParent();
-
-        auto vc = VirtineCompiler(fn);
-        vc.run_analysis();
-        auto code = vc.compile();
+    VirtinePass() : llvm::ModulePass(ID) {}
 
 
-
-        // debug_hexdump(code.data(), code.size());
-
-        auto arg_struct_type = VirtineCompiler::create_argument_struct(fn, true);
-
-        // first, we gotta remove the old body from the function
-        fn.deleteBody();
-
-        auto bb = llvm::BasicBlock::Create(ctx, "entry", &fn);
-        llvm::IRBuilder<> builder(ctx);
-        builder.SetInsertPoint(bb);
+    bool runOnModule(llvm::Module &m) override {
+      std::vector<llvm::Function *> virtines;
+      std::map<llvm::Function *, llvm::StringRef> functionSections;
+      std::map<llvm::Function *, std::vector<uint8_t>> compiledFunctions;
 
 
-        auto argptr = llvm::PointerType::get(arg_struct_type, 0);
-
-        auto args = builder.CreateAlloca(arg_struct_type);
-        args->setName("argument_struct");
-
-        int i = 0;
-        for (auto &arg : fn.args()) {
-          std::vector<llvm::Value *> indices(2);
-          indices[0] = llvm::ConstantInt::get(ctx, llvm::APInt(32, 0, true));
-          indices[1] = llvm::ConstantInt::get(ctx, llvm::APInt(32, i++, true));
-          auto ptr = builder.CreateGEP(arg_struct_type, args, indices);
-          if (arg.getType()->isPointerTy()) {
-            builder.CreateStore(builder.CreateLoad(&arg), ptr);
-          } else {
-            builder.CreateStore(&arg, ptr);
-          }
+      for (auto &fn : m) {
+        auto section = fn.getSection();
+        if (section.startswith("$__VIRTINE__")) {
+          functionSections[&fn] = section;
+          fn.setSection("");
+          virtines.push_back(&fn);
         }
-
-
-        /*
-         * now we need to get the wasp library function to call
-         */
-        auto chartype = llvm::IntegerType::get(ctx, 8);
-        auto charptr_type = llvm::PointerType::get(chartype, 0);
-        auto size_t_type = llvm::IntegerType::get(ctx, 64);
-
-        llvm::Function *wasp_run_func = mod->getFunction("wasp_run_virtine");
-
-        // if it's null, we gotta make it.
-        if (wasp_run_func == nullptr) {
-          std::vector<llvm::Type *> args;
-
-          args.push_back(charptr_type);  // char *code
-          args.push_back(size_t_type);   // size_t codesz
-          args.push_back(size_t_type);   // size_t memsz
-          args.push_back(charptr_type);  // void *arg
-          args.push_back(size_t_type);   // size_t argsz
-
-          args.push_back(charptr_type);  // void *config (a struct virtine_config)
-          auto wasp_run_type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), args, false);
-
-
-          wasp_run_func = llvm::Function::Create(wasp_run_type, llvm::Function::ExternalLinkage, "wasp_run_virtine", mod);
-        }
-
-        auto *codearray_ty = llvm::ArrayType::get(chartype, code.size());
-        auto *code_global = new llvm::GlobalVariable(*mod, codearray_ty, false, llvm::GlobalValue::PrivateLinkage,
-            0,  // has initializer, specified below
-            FMT(50, "__virtine_%s_code", fn.getName().data()));
-
-
-        std::vector<llvm::Constant *> data;
-        for (uint8_t byte : code)
-          data.push_back(llvm::ConstantInt::get(chartype, byte, false));
-
-        llvm::Constant *init = llvm::ConstantArray::get(codearray_ty, data);
-        code_global->setInitializer(init);
-
-
-        // now we call the virtine runtime code...
-        {
-          std::vector<llvm::Value *> argv;
-
-          // char *code
-          argv.push_back(code_global);
-          // size_t code_size
-          argv.push_back(llvm::ConstantInt::get(size_t_type, code.size()));
-
-          size_t ram_size = (4096 * 128);
-          // memory size 2 mb plus the size of the code.
-          argv.push_back(llvm::ConstantInt::get(size_t_type, ram_size));
-
-
-
-          // argument structure
-          argv.push_back(args);
-
-          // argument size is a little hard to get. Basically, we calculate it
-          // by getting a pointer to an arg type at NULL (0), then offsetting
-          // to index 1, and casting that value to an int. This effectively
-          // means we have the address of the second struct in memory (the size
-          // of the first)
-          auto NULL_PTR = llvm::ConstantPointerNull::get(llvm::PointerType::get(arg_struct_type, 0));
-          auto size_ptr = builder.CreateGEP(arg_struct_type, NULL_PTR, llvm::ConstantInt::get(ctx, llvm::APInt(32, 1, true)), "size_hack");
-          auto size = builder.CreatePtrToInt(size_ptr, size_t_type, "size");
-          argv.push_back(size);
-
-
-          llvm::Value *config = llvm::ConstantPointerNull::get(charptr_type);
-
-          if (section.startswith("$__VIRTINE__cfg=")) {
-            // printf("this one has a config...\n");
-            auto s = section.slice(strlen("$__VIRTINE__cfg="), section.size());
-            // printf("s: %s\n", s.data());
-            config = fn.getParent()->getNamedGlobal(s);
-          }
-
-          argv.push_back(config);
-
-          builder.CreateCall(wasp_run_func, argv);
-        }
-
-
-        i = 0;
-        for (auto &arg : fn.args()) {
-          int ind = i++;
-          if (arg.getType()->isPointerTy()) {
-            // printf("need to restore %d\n", ind);
-            std::vector<llvm::Value *> indices(2);
-            indices[0] = llvm::ConstantInt::get(ctx, llvm::APInt(32, 0, true));
-            indices[1] = llvm::ConstantInt::get(ctx, llvm::APInt(32, ind, true));
-            auto ptr = builder.CreateGEP(arg_struct_type, args, indices);
-            auto val = builder.CreateLoad(ptr);
-            builder.CreateStore(val, &arg);
-          }
-        }
-
-
-
-        llvm::Value *return_value = NULL;
-        // index into the end of the argument array
-        {
-          std::vector<llvm::Value *> indices(2);
-          indices[0] = llvm::ConstantInt::get(ctx, llvm::APInt(32, 0, true));
-          indices[1] = llvm::ConstantInt::get(ctx, llvm::APInt(32, fn.arg_size(), true));
-          auto ptr = builder.CreateGEP(arg_struct_type, args, indices);
-
-          return_value = builder.CreateLoad(ptr);
-        }
-
-        builder.CreateRet(return_value);
-
-        // clear the section so the linker can do what it wants...
-        fn.setSection("");
-
-				/*
-        printf("===================================================================\n");
-        fn.print(llvm::errs(), NULL);
-        printf("===================================================================\n");
-				*/
-
-        return true;
-
-
-      } else {
       }
 
-      return false;
+
+      for (auto *f : virtines) {
+        auto vc = VirtineCompiler(*f);
+        vc.run_analysis();
+        compiledFunctions[f] = vc.compile();
+      }
+
+      for (auto *f : virtines) {
+        compileFunction(*f, compiledFunctions[f], functionSections[f]);
+      }
+
+
+      return true;
     }
+
+
+    bool compileFunction(llvm::Function &fn, std::vector<uint8_t> &code, llvm::StringRef &section) {
+      auto fname = fn.getName().data();
+      auto &ctx = fn.getContext();
+      auto *mod = fn.getParent();
+
+      auto arg_struct_type = VirtineCompiler::create_argument_struct(fn, true);
+
+      // first, we gotta remove the old body from the function
+      fn.deleteBody();
+
+      auto bb = llvm::BasicBlock::Create(ctx, "entry", &fn);
+      llvm::IRBuilder<> builder(ctx);
+      builder.SetInsertPoint(bb);
+
+
+      auto argptr = llvm::PointerType::get(arg_struct_type, 0);
+
+      auto args = builder.CreateAlloca(arg_struct_type);
+      args->setName("argument_struct");
+
+      int i = 0;
+      for (auto &arg : fn.args()) {
+        std::vector<llvm::Value *> indices(2);
+        indices[0] = llvm::ConstantInt::get(ctx, llvm::APInt(32, 0, true));
+        indices[1] = llvm::ConstantInt::get(ctx, llvm::APInt(32, i++, true));
+        auto ptr = builder.CreateGEP(arg_struct_type, args, indices);
+        if (arg.getType()->isPointerTy()) {
+          builder.CreateStore(builder.CreateLoad(&arg), ptr);
+        } else {
+          builder.CreateStore(&arg, ptr);
+        }
+      }
+
+
+      /*
+       * now we need to get the wasp library function to call
+       */
+      auto chartype = llvm::IntegerType::get(ctx, 8);
+      auto charptr_type = llvm::PointerType::get(chartype, 0);
+      auto size_t_type = llvm::IntegerType::get(ctx, 64);
+
+      llvm::Function *wasp_run_func = mod->getFunction("wasp_run_virtine");
+
+      // if it's null, we gotta make it.
+      if (wasp_run_func == nullptr) {
+        std::vector<llvm::Type *> args;
+
+        args.push_back(charptr_type);  // char *code
+        args.push_back(size_t_type);   // size_t codesz
+        args.push_back(size_t_type);   // size_t memsz
+        args.push_back(charptr_type);  // void *arg
+        args.push_back(size_t_type);   // size_t argsz
+
+        args.push_back(charptr_type);  // void *config (a struct virtine_config)
+        auto wasp_run_type = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), args, false);
+
+
+        wasp_run_func = llvm::Function::Create(wasp_run_type, llvm::Function::ExternalLinkage, "wasp_run_virtine", mod);
+      }
+
+      auto *codearray_ty = llvm::ArrayType::get(chartype, code.size());
+      auto *code_global = new llvm::GlobalVariable(*mod, codearray_ty, false, llvm::GlobalValue::PrivateLinkage,
+          0,  // has initializer, specified below
+          FMT(50, "__virtine_%s_code", fn.getName().data()));
+
+
+      std::vector<llvm::Constant *> data;
+      for (uint8_t byte : code)
+        data.push_back(llvm::ConstantInt::get(chartype, byte, false));
+
+      llvm::Constant *init = llvm::ConstantArray::get(codearray_ty, data);
+      code_global->setInitializer(init);
+
+
+      // now we call the virtine runtime code...
+      {
+        std::vector<llvm::Value *> argv;
+
+        // char *code
+        argv.push_back(code_global);
+        // size_t code_size
+        argv.push_back(llvm::ConstantInt::get(size_t_type, code.size()));
+
+        size_t ram_size = (4096 * 128);
+        // memory size 2 mb plus the size of the code.
+        argv.push_back(llvm::ConstantInt::get(size_t_type, ram_size));
+
+
+
+        // argument structure
+        argv.push_back(args);
+
+        // argument size is a little hard to get. Basically, we calculate it
+        // by getting a pointer to an arg type at NULL (0), then offsetting
+        // to index 1, and casting that value to an int. This effectively
+        // means we have the address of the second struct in memory (the size
+        // of the first)
+        auto NULL_PTR = llvm::ConstantPointerNull::get(llvm::PointerType::get(arg_struct_type, 0));
+        auto size_ptr = builder.CreateGEP(arg_struct_type, NULL_PTR, llvm::ConstantInt::get(ctx, llvm::APInt(32, 1, true)), "size_hack");
+        auto size = builder.CreatePtrToInt(size_ptr, size_t_type, "size");
+        argv.push_back(size);
+
+
+        llvm::Value *config = llvm::ConstantPointerNull::get(charptr_type);
+
+        if (section.startswith("$__VIRTINE__cfg=")) {
+          // printf("this one has a config...\n");
+          auto s = section.slice(strlen("$__VIRTINE__cfg="), section.size());
+          // printf("s: %s\n", s.data());
+          config = fn.getParent()->getNamedGlobal(s);
+        }
+
+        argv.push_back(config);
+
+        builder.CreateCall(wasp_run_func, argv);
+      }
+
+
+      i = 0;
+      for (auto &arg : fn.args()) {
+        int ind = i++;
+        if (arg.getType()->isPointerTy()) {
+          // printf("need to restore %d\n", ind);
+          std::vector<llvm::Value *> indices(2);
+          indices[0] = llvm::ConstantInt::get(ctx, llvm::APInt(32, 0, true));
+          indices[1] = llvm::ConstantInt::get(ctx, llvm::APInt(32, ind, true));
+          auto ptr = builder.CreateGEP(arg_struct_type, args, indices);
+          auto val = builder.CreateLoad(ptr);
+          builder.CreateStore(val, &arg);
+        }
+      }
+
+
+
+      llvm::Value *return_value = NULL;
+      // index into the end of the argument array
+      {
+        std::vector<llvm::Value *> indices(2);
+        indices[0] = llvm::ConstantInt::get(ctx, llvm::APInt(32, 0, true));
+        indices[1] = llvm::ConstantInt::get(ctx, llvm::APInt(32, fn.arg_size(), true));
+        auto ptr = builder.CreateGEP(arg_struct_type, args, indices);
+
+        return_value = builder.CreateLoad(ptr);
+      }
+
+      builder.CreateRet(return_value);
+
+      // clear the section so the linker can do what it wants...
+      fn.setSection("");
+      return true;
+    }
+
+
+    bool doInitialization(llvm::Module &M) override { return false; }
+
+
+    void getAnalysisUsage(llvm::AnalysisUsage &AU) const override {}
   };  // end of struct VirtinePass
 }  // end of anonymous namespace
 
-char VirtinePass::ID = 0;
-static llvm::RegisterPass<VirtinePass> X("virtine", "Virtine Compiler Pass", false /* Only looks at CFG */, false /* Analysis Pass */);
 
-static llvm::RegisterStandardPasses Y(
-    llvm::PassManagerBuilder::EP_EarlyAsPossible, [](const llvm::PassManagerBuilder &Builder, llvm::legacy::PassManagerBase &PM) {
-      PM.add(new VirtinePass());
-    });
+
+
+// Next there is code to register your pass to "opt"
+char VirtinePass::ID = 0;
+static llvm::RegisterPass<VirtinePass> X("CAT", "Homework for the CAT class");
+
+// Next there is code to register your pass to "clang"
+static VirtinePass *_PassMaker = NULL;
+static llvm::RegisterStandardPasses _RegPass1(
+    llvm::PassManagerBuilder::EP_OptimizerLast, [](const llvm::PassManagerBuilder &, llvm::legacy::PassManagerBase &PM) {
+      if (!_PassMaker) {
+        PM.add(_PassMaker = new VirtinePass());
+      }
+    });  // ** for -Ox
+static llvm::RegisterStandardPasses _RegPass2(
+    llvm::PassManagerBuilder::EP_EnabledOnOptLevel0, [](const llvm::PassManagerBuilder &, llvm::legacy::PassManagerBase &PM) {
+      if (!_PassMaker) {
+        PM.add(_PassMaker = new VirtinePass());
+      }
+    });  // ** for -O0
 
 
 

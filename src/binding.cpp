@@ -21,16 +21,16 @@
 // for struct virtine_config
 #include "virtine.h"
 
-static std::map<size_t, std::unique_ptr<wasp::Cache>> cached_virtines;
+static std::map<const char *, std::unique_ptr<wasp::Cache>> cached_virtines;
 std::mutex virtine_cache_lock;
 
 static inline wasp::Cache &get_cache(const char *code, size_t codesz, size_t memsz) {
-  auto found = cached_virtines.find(memsz);
+  auto found = cached_virtines.find(code);
   if (found == cached_virtines.end()) {
     auto c = std::make_unique<wasp::Cache>(memsz);
     c->set_binary(code, codesz, 0x8000);
-    cached_virtines[memsz] = move(c);
-    return *cached_virtines[memsz];
+    cached_virtines[code] = move(c);
+    return *cached_virtines[code];
   }
 
   return *(*found).second;
@@ -226,7 +226,7 @@ extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz, 
       fprintf(stderr, "[Virtine] FATAL - CRASHED.\n");
       auto regs = vm->read_regs();
       dump_trapframe(&regs);
-			abort();
+      abort();
     }
 
     if (res == wasp::ExitReason::Exited) {
@@ -241,12 +241,6 @@ extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz, 
   get_cache(code, codesz, memsz).put(vm);
   virtine_cache_lock.unlock();
 }
-
-
-
-
-
-
 
 
 
