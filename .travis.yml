@@ -1,0 +1,14 @@
+dist: focal
+
+addons:
+  apt:
+    update: true
+    packages:
+      - nasm
+      - libcurl-dev
+      - cmake
+      - llvm
+      - llvm-dev
+      - clang
+
+script: make && sudo make install && make smoketest
