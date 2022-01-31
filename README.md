@@ -20,6 +20,7 @@ virtine int foo (int arg) {
   * [Build Instructions](#build-instructions)
   * [Run Basic Virtine Tests](#run-virtine-tests)
   * [Reproduce Paper Results](#reproduce-paper-results)
+  * [Embedding Wasp](#embedding-wasp)
   * [Code Structure](#code-structure)
   * [Acknowledgements](#acknowledgements)
   * [License](#license)
@@ -35,31 +36,44 @@ The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 ### Prerequisites
 - `nasm`
 - `libcurl` dev headers (`libcurl-dev` on ubuntu)
-- Must be on a Linux box with KVM support (`lsmod | grep kvm`)
+- Must be on a Linux box with KVM support (`lsmod | grep kvm`), i.e. baremetal or supports nested virtualization
 
+For example, on an Ubuntu machine:
 
 Tested on a chameleon cloud ubuntu 20.04.3 LTS (baremetal skylake, 48 cores, xeon gold 6126) kernel version 5.4.0-91-generic
 ```bash
-sudo apt install cmake nasm llvm llvm-dev clang
+sudo apt install -y cmake nasm llvm llvm-dev clang libcurl-dev
+```
+
+
+### Building and Installing
+
+```bash
 git clone https://github.com/virtines/wasp.git
 cd wasp
 make
 sudo make install
-make smoketest
 ```
 
-If the smoketest doesn't panic, wasp works!
+TODO explain what make install is actually doing
 
-## Building and Installing
+## Run Virtine Tests
+TODO
+
+If the smoketest doesn't panic, wasp is functional at this point.
+
+## Reproduce Paper Results
+
+To re-run the experiments and reproduce relevant figures from the paper,
+simply run:
 
 ```bash
-make
-sudo make install
+make artifacts
 ```
 
-Yeah its pretty easy.
+## Embedding Wasp
 
-## Using
+TODO: more detail
 
 Just include it as a shared library when building:
 
@@ -67,11 +81,6 @@ Just include it as a shared library when building:
 clang++ -lwasp main.cpp -o main
 ```
 
-## Run Virtine Tests
-TODO
-
-## Reproduce Paper Results
-TODO
 
 ## Code Structure
 TODO
