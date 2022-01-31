@@ -1,25 +1,18 @@
-matrix:
-    include: 
-    - os: linux
-      addons:
-        apt:
-          update: true
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-focal-12.0
-          packages:
-            - nasm
-            - libcurl4-openssl-dev
-            - cmake
-            - llvm
-            - llvm-dev
-            - clang-12
-            - libclang-12-dev
-            - gcc
-            - g++
-      env: 
-        - MATRIX_EVAL="CC=clang-12.0 && CXX=clang++-12.0"
+dist: focal
+  addons:
+    apt:
+      update: true
+      packages:
+        - nasm
+        - libcurl4-openssl-dev
+        - cmake
+        - llvm
+        - llvm-dev
+        - clang-12
+        - gcc
+        - g++
+  env: 
+    - CC=clang-12
+      CXX=clang++-12
 
-before_install:
-  - eval "${MATRIX_EVAL}"
 script: make && sudo make install && make smoketest
