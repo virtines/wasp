@@ -36,6 +36,21 @@ The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 - `libcurl` dev headers (`libcurl-dev` on ubuntu)
 - Must be on a Linux box with KVM support (`lsmod | grep kvm`)
 
+
+Tested on a chameleon cloud ubuntu 20.04.3 LTS (baremetal skylake, 48 cores, xeon gold 6126) kernel version 5.4.0-91-generic
+```bash
+sudo apt install cmake nasm llvm llvm-dev clang
+git clone https://github.com/virtines/wasp.git
+cd wasp
+make
+sudo make install
+make smoketest
+```
+
+If the smoketest doesn't panic, wasp works!
+
+## Building and Installing
+
 ```bash
 make
 sudo make install
