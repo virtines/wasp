@@ -239,6 +239,9 @@ ALLPLOTS:=fig3.pdf fig8.pdf fig11.pdf fig12.pdf fig14.pdf
 alldata: table1_data fig3_data fig8_data fig11_data fig12_data fig14_data
 artifacts: all alldata $(ALLPLOTS)
 
+artifacts.tar: artifacts
+	tar -cvf artifacts.tar data $(ALLPLOTS)
+
 
 
 
