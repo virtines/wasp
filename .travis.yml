@@ -1,5 +1,8 @@
 dist: focal
 
+language: c
+os: linux
+
 addons:
   apt:
     update: true
@@ -9,11 +12,11 @@ addons:
       - cmake
       - llvm
       - llvm-dev
-      - clang-12
+      - clang-10
       - gcc
       - g++
 env: 
-  - CC=clang-12
-    CXX=clang++-12
+  - CC=clang-10
+    CXX=clang++-10
 
 script: make && sudo make install && make smoketest
