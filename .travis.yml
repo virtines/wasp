@@ -19,4 +19,4 @@ env:
   - CC=clang-10
     CXX=clang++-10
 
-script: make && sudo make install && make smoketest
+script: cmake --version && llvm-config --version && make && sudo make install && make smoketest
