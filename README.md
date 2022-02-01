@@ -10,8 +10,8 @@ extensions. In the latter case, a develper can create a virtine by simply adding
 a keyword to a C function:
 
 ```C
-virtine int foo (int arg) {
-    // code
+virtine int foo(int arg) {
+	// code
 } 
 ```
 
@@ -59,7 +59,8 @@ make
 sudo make install
 ```
 
-TODO: explain what make install is actually doing
+`make install` imply copies the resulting binaries to `/usr/local/{lib,bin,include}`, and will
+not run any programs other than `mkdir` and `install`.
 
 ## Run Virtine Tests
 
@@ -94,8 +95,14 @@ what is included from the paper:
 - JavaScript virtines performance (`fig14.pdf`); Figure 14 from the paper.
 
 
-TODO: explain how to run individual experiments. Discuss what kind of data they might see
-on different machines. 
+If you would like to run a single experiment, simply run `make data_figX` where X is the
+id of the figure (fig14.pdf uses `data_fig14`, `fig13_lat.pdf` uses `data_fig13_lat`).
+
+Unfortunately, due to the nature of microarchitectural differences across CPUs, the
+data produced from some of these tests will vary from machine to machine. We notice that
+fig8, table 1, and fig3 vary quite heavily between AMD and Intel -- and even between
+their generations.
+
 
 ## Embedding Wasp
 Wasp can be used two ways: as a library or as a compiler extension. Directly interfacing
@@ -199,7 +206,7 @@ int main(int argc, char **argv) {
 
 ### Virtine Compiler Extension (vcc)
 
-Quite possibly the easiest interface to virtines is through `vcc`, which once built and installed,
+Quite possibly the easiest interface to virtines is through `vcc`, which once built and installed
 allows existing *C* programs to utilize virtines with a simple keyword. A trivial example looks like this:
 
 ```c
@@ -228,7 +235,7 @@ language like SML may solve many of those problems.
 
 
 ## Code Structure
-TODO
+All of the wasp runtime is implemented in `include/` and `src/`. The LLVM pass is implemented in `pass/`
 
 ## Acknowledgements
 
