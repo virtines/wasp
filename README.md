@@ -82,14 +82,133 @@ make artifacts
 ```
 
 ## Embedding Wasp
+Wasp can be used two ways: as a library or as a compiler extension. Directly interfacing
+with Wasp can provide higher control over the execution of a virtine leading to lower
+latencies and smaller attack surfaces. Using wasp through the compiler eases development
+significantly, but results in higher latencies and larger binaries due to it's general
+purpose functionality.
 
-TODO: more detail
+### Direct API Access
 
-Just include it as a shared library when building:
+Wasp exposes a simple API to construct a virtine in `<wasp/Virtine.h>`. You'll notice
+that the interface does not assume anything about the operation of the particular virtine,
+including how it is built. When interfacing with the wasp API directly, virtine compilation
+and runtime is up to the developer. An example of the code to run a virtine, as well
+as the virtine that is run looks like this:
+
+```cpp
+// host.cpp
+#include <wasp/Virtine.h>
+
+int main(int argc, char **argv) {
+	wasp::Virtine virtine;
+	// allocate ram as a contiguous chunk of 16kb (in page alignments)
+	virtine.allocate_memory(4096 * 4);
+	// load a flat binary into the virtine at address 0x8000
+	virtine.load_binary("virtine.bin", 0x8000);
+	while (1) {
+		// run the virtine, 
+		auto res = virtine.run();
+		if (res == wasp::ExitReason::Hypercall) {
+			// handle the hypercall by interfacing with the registers
+		}
+		if (res == wasp::ExitReason::Exited) break;
+	}
+	return 0;
+}
+```
+
+
+```asm
+;; virtine.asm
+[org 0x8000]
+global _start
+_start:
+	;; exit
+	out 0xFA, eax
+```
+
+The compilation of a virtine is up to the developer. In this case, `virtine.bin` can
+be compiled using `nasm -fbin virtine.asm -o virtine.bin`, which will produce a 3 byte
+binary.
+
+The final application can be compiled and run:
 
 ```bash
-clang++ -lwasp main.cpp -o main
+nasm -fbin virtine.asm -o virtine.bin
+gcc -lwasp host.cpp -o host
+./host
 ```
+... which will print nothing. See `test/` for some more concrete examples.
+(test/js/host.cpp displays almost all of the API).
+
+Of course, allocating a virtual machine is quite slow all things considered, and as such wasp
+provides a cache mechanims, `wasp::Cache`. If the above `host.cpp` is rewritten with caching,
+only a few things change:
+
+```cpp
+// host.cpp
+#include <wasp/Virtine.h>
+#include <wasp/Cache.h>
+
+int main(int argc, char **argv) {
+
+	// allocate a cache of virtines that all have 16kb of memory
+	wasp::Cache cache(4096 * 4);
+	// load the binary on the cache, not each virtine
+	cache.load_binary("virtine.bin", 0x8000);
+
+
+	// pre-provision 12 virtines (arbitrarially)
+	cache.ensure(12);
+
+	// get a fresh virtine from the cache
+	wasp::Virtine *v = cache.get();
+	while (1) {
+		// run the virtine, 
+		auto res = v->run();
+		if (res == wasp::ExitReason::Hypercall) {
+			// handle the hypercall by interfacing with the registers
+		}
+		if (res == wasp::ExitReason::Exited) break;
+	}
+	// return the virtine once we are done
+	cache.put(v);
+	return 0;
+}
+```
+
+
+
+
+### Virtine Compiler Extension (vcc)
+
+Quite possibly the easiest interface to virtines is through `vcc`, which once built and installed,
+allows existing *C* programs to utilize virtines with a simple keyword. A trivial example looks like this:
+
+```c
+// main.c
+#include <virtine.h>
+#include <stdio.h>
+
+virtine int square(int x) {
+	return x * x;
+}
+
+int main(int argc, char **argv) {
+	printf("%d\n", square(3));
+	return 0;
+}
+```
+
+If compiled with `vcc` - a drop in for clang/gcc - a virtine for square will be spawned and executed
+whenever square is called. By default, the virtine utilizes *snapshotting* to decrease latencies. This
+can be disabled by defining the environment variable `WASP_NO_SNAPSHOT=1` if you wish to see it's effect.
+The compiler extension is currently in it's early stages, and suffers from much of the weaknesses that
+a typical C compiler might (no full program analysis, pointer aliasing, inability to
+inline functions from other c files, unsized pointers, etc), but we imagine a future where a high level
+language like SML may solve many of those problems.
+
 
 
 ## Code Structure
