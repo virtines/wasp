@@ -130,7 +130,8 @@ int main(int argc, char **argv) {
 	// load a flat binary into the virtine at address 0x8000
 	virtine.load_binary("virtine.bin", 0x8000);
 	while (1) {
-		// run the virtine, 
+		// run the virtine until it exits by some mechanism
+		//   (there will eventually be a timeout :^) )
 		auto res = virtine.run();
 		if (res == wasp::ExitReason::Hypercall) {
 			// handle the hypercall by interfacing with the registers
