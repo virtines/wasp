@@ -1,21 +1,21 @@
 dist: focal
-
+sudo: required
 language: c
 os: linux
 
 addons:
   apt:
     sources: 
-      - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-focal-10 main'
-        key_urlkey_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+      - sourceline: 'deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main'
+        key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
       - sourceline: 'ppa:ubuntu-toolchain-r/test'
     update: true
     packages:
       - nasm
       - libcurl4-openssl-dev
       - cmake
-      - llvm@10
-      - llvm-10-dev
+      - llvm
+      - llvm-dev
       - clang-10
       - gcc
       - g++
@@ -23,4 +23,10 @@ env:
   - CC=clang-10
     CXX=clang++-10
 
-script: cmake --version && llvm-config --version && make && sudo make install && make smoketest
+script: 
+  - sudo ln -s /usr/bin/clang-10 /usr/local/bin/clang
+  - sudo ln -s /usr/bin/clang++-10 /usr/local/bin/clang++
+  - export CC=/usr/bin/clang-10
+  - export CXX=/usr/bin/clang++-10
+  - make BUILD_ENV=travis
+  - sudo make install 

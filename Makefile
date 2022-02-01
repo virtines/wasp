@@ -1,14 +1,19 @@
 CMAKE_ROOT=$(shell pwd)
 BUILD:=build/
 VENV:=venv/
+CMAKE_PREFIX_PATH:=/usr/lib/llvm-10
 
+ifeq ($(BUILD_ENV), travis)
+	CMAKE_PREFIX_OPT:=-DCMAKE_PREFIX_PATH=$(CMAKE_PREFIX_PATH)
+endif
+
+CMAKE_OPTS:=-DCMAKE_BUILD_TYPE=Debug $(CMAKE_PREFIX_OPT)
 
 all: wasp virtine_bins build/fib.bin libc build/echo_server.bin
 
-
 wasp:
 	@mkdir -p $(BUILD)
-	@cd $(BUILD); cmake -DCMAKE_BUILD_TYPE=Debug $(CMAKE_ROOT)
+	@cd $(BUILD); cmake $(CMAKE_OPTS) $(CMAKE_ROOT)
 	make --no-print-directory -C $(BUILD) -j $(shell nproc)
 	@cp $(BUILD)/compile_commands.json .
 
