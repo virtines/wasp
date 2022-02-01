@@ -33,23 +33,30 @@ The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
 ## Build Instructions
 
-### Prerequisites and Building
+### Environment Setup
+TODO: describe chameleon, cloudlab setup
+
+### Prerequisites 
+
+The following packages are necessary to get Wasp running:
 - `nasm`
 - `libcurl` dev headers (`libcurl-dev` on recent Ubuntu is an aliased package; we had to use `libcurl4-openssl-dev`)
 - `clang` version 10 or newer
 - `llvm` and `llvm-dev`
 - `cmake` 
+- `python3.8-venv` 
 
-Additionally, you must be on a Linux box with KVM support (you can check with `lsmod | grep kvm`), i.e., a baremetal machine or one that supports nested virtualization.
-Wasp only support x86 (Intel, AMD) at the moment. 
+Additionally, you must be on a Linux box with KVM support (you can check with
+`lsmod | grep kvm`), i.e., a baremetal machine or one that supports nested
+virtualization.  Wasp only support x86_64 (Intel, AMD) chips that have hardware
+virtualization extensions at the moment. 
 
-For example, on an Ubuntu machine:
+For example, on an Ubuntu 20.04 LTS machine:
 
 ```bash
 sudo apt update
 sudo apt install -y cmake nasm llvm llvm-dev clang libcurl4-openssl-dev python3.8-venv
 ```
-
 
 ### Building and Installing
 
@@ -60,10 +67,12 @@ make
 sudo make install
 ```
 
-`make install` imply copies the resulting binaries to `/usr/local/{lib,bin,include}`, and will
+`make install` simply copies the resulting binaries to `/usr/local/{lib,bin,include}`, and will
 not run any programs other than `mkdir` and `install`.
 
 ## Run Virtine Tests
+
+To ensure Wasp is functional, we have included a "smoke test" in the repo. You can run it like so:
 
 ```bash
 make smoketest
@@ -71,11 +80,11 @@ make smoketest
 
 If the smoketest doesn't panic, Wasp is functional at this point. We tested
 this most recently on Chameleon Cloud Ubuntu 20.04.3 LTS (baremetal Skylake, 48
-cores, Xeon Gold 6126) Kernel version 5.4.0-91-generic.
+cores, Xeon Gold 6126) with Linux kernel version 5.4.0-91-generic.
 
 If the smoke test does panic, it may be because `/dev/kvm` is owned by root.
 It's advised to allow anyone to open `/dev/kvm` when gathering the artifacts.
-To do so, run `sudo chmod 666 /dev/kvm`. Feel free to restore it after running
+To do so, you can run `sudo chmod 666 /dev/kvm`. Feel free to restore it after running
 the artifact.
 
 ## Reproduce Paper Results
@@ -87,7 +96,7 @@ simply run:
 make artifacts.tar
 ```
 
-This will produce a `.tar` archive containing relevant figures and data in `artifacts.tar`. Here is
+This will produce a `.tar` archive containing all relevant figures and data in `artifacts.tar`. Here is
 what is included from the paper:
 
 - Context creation experiment (`fig8.pdf`); Figures 2 and 8 from the paper. Figure 8 is a superset of Figure 2. 
@@ -104,26 +113,25 @@ what is included from the paper:
 If you would like to run a single experiment, simply run `make data_figX` where X is the
 id of the figure (fig14.pdf uses `data_fig14`, `fig13_lat.pdf` uses `data_fig13_lat`).
 
-Unfortunately, due to the nature of microarchitectural differences across CPUs, the
-data produced from some of these tests will vary from machine to machine. We notice that
-fig8, table 1, and fig3 vary quite heavily between AMD and Intel -- and even between
-their generations.
+Due to the nature of microarchitectural differences across CPUs, the
+data produced from some of these tests will vary slightly from machine to machine. In particular, we have noticed that
+Figures 3 and 8 and Table 1 show some discrepancies between AMD and Intel; we also see some variance across
+microarchitectural generations. 
 
 
 ## Embedding Wasp
-Wasp can be used two ways: as a library or as a compiler extension. Directly interfacing
+Wasp can be used two ways: as a library (which the programmer invokes through API calls) or as a compiler extension. Directly interfacing
 with Wasp can provide higher control over the execution of a virtine leading to lower
-overheards. Using wasp through the compiler eases development
-significantly, but results in higher overheads and larger binaries due to it's general
-purpose functionality.
+overheads. Wasp's compiler extensions ease development
+significantly, but result in higher overheads and larger binaries due to their general-purpose functionality.
 
 ### Direct API Access
 
 Wasp exposes a simple API to construct a virtine in `<wasp/Virtine.h>`. You'll notice
 that the interface does not assume anything about the operation of the particular virtine,
 including how it is built. When interfacing with the wasp API directly, virtine compilation
-and runtime is up to the developer. An example of the code to run a virtine, as well
-as the virtine that is run looks like this:
+and invocation is up to the developer. An example of some minimal virtine code, as well as the code to invoke it
+looks like this:
 
 ```cpp
 // host.cpp
@@ -131,8 +139,10 @@ as the virtine that is run looks like this:
 
 int main(int argc, char **argv) {
 	wasp::Virtine virtine;
+
 	// allocate ram as a contiguous chunk of 16kb (in page alignments)
 	virtine.allocate_memory(4096 * 4);
+
 	// load a flat binary into the virtine at address 0x8000
 	virtine.load_binary("virtine.bin", 0x8000);
 	while (1) {
@@ -148,6 +158,7 @@ int main(int argc, char **argv) {
 }
 ```
 
+Here is a very simple virtine written in assembly:
 
 ```asm
 ;; virtine.asm
@@ -158,21 +169,21 @@ _start:
 	out 0xFA, eax
 ```
 
-The compilation of a virtine is up to the developer. In this case, `virtine.bin` can
-be compiled using `nasm` which will produce a 3 byte binary.
+In this case, the developer must write and compile the virtine code on their own. In this example, the virtine's image (`virtine.bin`) can
+be assembled from the above code using `nasm` which will produce a 3 byte binary.
 
-The final application can be compiled and run:
+The final application can be compiled and run as follows:
 
 ```bash
 nasm -fbin virtine.asm -o virtine.bin
 gcc -lwasp host.cpp -o host
 ./host
 ```
-... which will print nothing. See `test/` for some more concrete examples.
-(test/js/host.cpp displays almost all of the API).
+This should produce no output. The virtine will simply exit immediately. See the `test/` directory for some more concrete examples.
+(`test/js/host.cpp` showcases most of the available API functionality).
 
-Of course, allocating a virtual machine is quite slow all things considered, and as such wasp
-provides a cache mechanims, `wasp::Cache`. If the above `host.cpp` is rewritten with caching,
+To improve performance, Wasp
+provides caching mechanisms via `wasp::Cache`. If the above `host.cpp` is rewritten with caching,
 only a few things change:
 
 ```cpp
@@ -184,9 +195,9 @@ int main(int argc, char **argv) {
 
 	// allocate a cache of virtines that all have 16kb of memory
 	wasp::Cache cache(4096 * 4);
+
 	// load the binary on the cache, not each virtine
 	cache.load_binary("virtine.bin", 0x8000);
-
 
 	// pre-provision 12 virtines (arbitrarially)
 	cache.ensure(12);
@@ -208,12 +219,10 @@ int main(int argc, char **argv) {
 ```
 
 
+### Virtine Compiler Extension (`vcc`)
 
-
-### Virtine Compiler Extension (vcc)
-
-Quite possibly the easiest interface to virtines is through `vcc`, which once built and installed
-allows existing *C* programs to utilize virtines with a simple keyword. A trivial example looks like this:
+The easiest way to use virtines is through `vcc`, which once built and installed
+allows existing *C* programs to run in context using only a simple keyword. A trivial example looks like this:
 
 ```c
 // main.c
@@ -230,16 +239,13 @@ int main(int argc, char **argv) {
 }
 ```
 
-If compiled with `vcc` - a drop in for clang/gcc - a virtine for square will be
-spawned and executed whenever square is called. By default, the virtine
-utilizes *snapshotting* to decrease latencies. This can be disabled by defining
-the environment variable `WASP_NO_SNAPSHOT=1` if you wish to see it's effect.
-The compiler extension is currently in it's early stages, and suffers from much
-of the weaknesses that a typical C compiler might (no full program analysis,
-pointer aliasing, inability to inline functions from other c files, unsized
-pointers, etc), but we imagine a future where a high level language like SML
-may solve many of those problems. If anything doesn't work, please submit an
-issue and we'll work on getting it figured out!
+If compiled with `vcc` (a drop-in for clang/gcc) a virtine for `square()` will be spawned and executed
+whenever `square` is invoked. By default, the virtine utilizes *snapshotting* to decrease start-up latencies. This
+can be disabled by defining the environment variable `WASP_NO_SNAPSHOT=1` if you wish to see its effect.
+The compiler extension is currently in its early stages, and suffers from much of the weaknesses that
+a typical C compiler might have (no full program analysis, pointer aliasing, inability to
+inline functions from other C files, unsized pointers, etc.), but we imagine a future where a high-level
+language like SML may solve many of those problems.
 
 
 ## Code Structure
