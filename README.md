@@ -277,8 +277,8 @@ is implemented in `pass/`, and `test/` contains a set of tests which produce
 the data from the paper. The `data_example` directory contains example data
 gathered from a few machines. For example `AMD-EPYC-7302P-cloudlab-c6525-25g/`
 contains the data gathered from the machine using the `cloudlab.profile` and
-`Intel-XEON-Gold-6126-chameleon` is from an allocation on chameleon. Each subdirectory
-contains a `README.md` file describing the machine and software environment. 
+`Intel-XEON-Gold-6126-chameleon` is from an allocation on chameleon. There is a     
+ `README.md` file in the `data_example/` directory describing the machines and their software environments. 
 
 ## Acknowledgements
 
