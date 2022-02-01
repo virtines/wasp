@@ -31,10 +31,23 @@ virtine int foo(int arg) {
 Nicholas C. Wanninger, Joshua J. Bowden, Kyle C. Hale<br>
 The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
-## Build Instructions
+## Environment Setup
 
-### Environment Setup
-TODO: describe chameleon, cloudlab setup
+Wasp can be built and evaluated on any Linux x86 hardware that supports
+hardware virtualization through KVM. For evaluating the artifacts, we recommend
+an allocation on Cloudlab or Chameleon Cloud, as outlined below:
+
+### Cloudlab Configuration
+
+- Apply for a cloudlab account if you do not have one
+- Once logged in, Click `Experiments` then `Create Experiment Profile`
+- Upload the `cloudlab.profile` file provided in the root of this repo
+- Create the instance using that profile and SSH into it following cloudlab's docs
+
+
+
+
+## Build Instructions
 
 ### Prerequisites 
 
