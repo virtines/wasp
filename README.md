@@ -233,9 +233,11 @@ inline functions from other c files, unsized pointers, etc), but we imagine a fu
 language like SML may solve many of those problems.
 
 
+If anything doesn't work, please submit an issue and we'll work on getting it figured out!
 
 ## Code Structure
-All of the wasp runtime is implemented in `include/` and `src/`. The LLVM pass is implemented in `pass/`
+All of the wasp runtime is implemented in `src/` and `include/`, the LLVM pass is implemented in `pass/`,
+and `test/` contains a set of tests which produce the data from the paper.
 
 ## Acknowledgements
 
