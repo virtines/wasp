@@ -46,6 +46,7 @@ Wasp only support x86 (Intel, AMD) at the moment.
 For example, on an Ubuntu machine:
 
 ```bash
+sudo apt update
 sudo apt install -y cmake nasm llvm llvm-dev clang libcurl4-openssl-dev
 ```
 
