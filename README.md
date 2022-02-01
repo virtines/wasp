@@ -248,12 +248,13 @@ inline functions from other C files, unsized pointers, etc.), but we imagine a f
 language like SML may solve many of those problems.
 
 
-If anything doesn't work, please submit an issue and we'll work on getting it figured out!
-
 ## Code Structure
-
-All of the wasp runtime is implemented in `src/` and `include/`. The LLVM compiler pass is implemented in `pass/`,
-and `test/` contains a set of functionality tests and experimental code which produces the data from the paper.
+All of the wasp runtime is implemented in `src/` and `include/`, the LLVM pass
+is implemented in `pass/`, and `test/` contains a set of tests which produce
+the data from the paper. The `data_example` directory contains example data
+gathered from a few machines. For example `AMD-EPYC-7302P-cloudlab-c6525-25g/`
+contains the data gathered from the machine using the `cloudlab.profile` and
+`Intel-XEON-Gold-6126-chameleon` is from an allocation on chameleon.
 
 ## Acknowledgements
 
