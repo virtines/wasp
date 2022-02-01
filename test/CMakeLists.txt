@@ -41,3 +41,4 @@ target_link_libraries(image_size wasp)
 
 add_executable(echo_server echo_server/host.cpp)
 target_link_libraries(echo_server wasp curl)
+

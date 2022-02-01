@@ -51,6 +51,19 @@ build/libc.a:
 	scripts/build_newlib.sh
 
 
+
+build/fib.bin: test/fib/boot.asm test/fib/virtine.c
+	@mkdir -p build/fib
+	@nasm -felf64 test/fib/boot.asm -o build/fib/boot.o
+	@gcc -O3 -nostdlib -c -o build/fib/virtine.o test/fib/virtine.c
+	@ld -T test/fib/rt.ld -o build/fib.elf build/fib/boot.o build/fib/virtine.o
+	@objcopy -O binary build/fib.elf build/fib.bin
+
+
+build/http: test/http/http.c
+	@vcc -o $@ $<
+
+
 build/jsv/%.c.o: test/js/rt/%.c
 	@mkdir -p $(dir $@)
 	@echo " CC " $<
@@ -68,12 +81,6 @@ build/jsinterp.bin: build/jsv/virtine.c.o build/jsv/duktape.c.o
 	@objcopy -O binary build/jsinterp.o build/jsinterp.bin
 
 
-build/fib.bin: test/fib/boot.asm test/fib/virtine.c
-	@mkdir -p build/fib
-	@nasm -felf64 test/fib/boot.asm -o build/fib/boot.o
-	@gcc -O3 -nostdlib -c -o build/fib/virtine.o test/fib/virtine.c
-	@ld -T test/fib/rt.ld -o build/fib.elf build/fib/boot.o build/fib/virtine.o
-	@objcopy -O binary build/fib.elf build/fib.bin
 
 
 js: build/jsinterp.bin build/js_baseline
@@ -228,15 +235,46 @@ fig14_gold.pdf: venv
 
 
 
+
+build/http_baseline: test/http/http.c
+	gcc -DBASELINE=1 -o $@ $<
+
+build/http_virtine: test/http/http.c
+	vcc -o $@ $<
+
+data/fig13/http_baseline_lat.csv: build/http_baseline
+	build/http_baseline -l > $@
+data/fig13/http_baseline_thru.csv: build/http_baseline
+	build/http_baseline -t > $@
+data/fig13/http_virtine_lat.csv: build/http_virtine
+	WASP_NO_SNAPSHOT=1 build/http_virtine -l > $@
+data/fig13/http_virtine_thru.csv: build/http_virtine
+	WASP_NO_SNAPSHOT=1 build/http_virtine -t > $@
+data/fig13/http_virtine_snapshot_lat.csv: build/http_virtine
+	build/http_virtine -l > $@
+data/fig13/http_virtine_snapshot_thru.csv: build/http_virtine
+	build/http_virtine -t > $@
+
+data/fig13:
+	@mkdir -p $@
+fig13_lat_data: data/fig13 data/fig13/http_virtine_snapshot_lat.csv data/fig13/http_virtine_lat.csv data/fig13/http_baseline_lat.csv
+fig13_tput_data: data/fig13 data/fig13/http_baseline_thru.csv data/fig13/http_virtine_snapshot_thru.csv data/fig13/http_virtine_thru.csv
+fig13_tput.pdf: fig13_tput_data
+	$(VENV)/bin/python plotgen/fig13-http-tput.py data/fig13/ $@
+
+fig13_lat.pdf: fig13_lat_data
+	$(VENV)/bin/python plotgen/fig13-http-latency.py data/fig13/ $@
+
+
 data/table1.csv:
 	@mkdir -p data
 	build/test/boottime > data/table1.csv
 
 table1_data: data/table1.csv
 
-ALLPLOTS:=fig3.pdf fig8.pdf fig11.pdf fig12.pdf fig14.pdf
+ALLPLOTS:=fig3.pdf fig8.pdf fig11.pdf fig12.pdf fig13_tput.pdf fig13_lat.pdf fig14.pdf
 
-alldata: table1_data fig3_data fig8_data fig11_data fig12_data fig14_data
+alldata: table1_data fig3_data fig8_data fig11_data fig12_data fig13_tput_data fig13_lat_data fig14_data
 artifacts: all alldata $(ALLPLOTS)
 
 artifacts.tar: artifacts

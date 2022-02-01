@@ -23,9 +23,9 @@ plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=BIGGER_SIZE)
 
-fname     = sys.argv[1]
+fname     = sys.argv[2]
 
-data_dir  = "../data/http"
+data_dir  = sys.argv[1]
 files = ['http_baseline_lat.csv', 'http_virtine_lat.csv', 'http_virtine_snapshot_lat.csv']
 
 bar_pos  = np.arange(3)

@@ -31,7 +31,7 @@ The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
 ## Build Instructions
 
-### Prerequisites
+### Prerequisites and Building
 - `nasm`
 - `libcurl` dev headers (`libcurl-dev` on ubuntu)
 - Must be on a Linux box with KVM support (`lsmod | grep kvm`)

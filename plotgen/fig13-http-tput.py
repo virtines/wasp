@@ -23,9 +23,9 @@ plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=BIGGER_SIZE)
 
-fname     = sys.argv[1]
+fname     = sys.argv[2]
 
-data_dir  = "../data/http"
+data_dir  = sys.argv[1]
 files = ['http_baseline_thru.csv', 'http_virtine_thru.csv', 'http_virtine_snapshot_thru.csv']
 
 bar_pos  = np.arange(3)
@@ -50,8 +50,8 @@ ax.set_xticks([r + barwidth/2 for r in range(0, 3)])
 #ax.legend(loc='upper left', fontsize=BIGGER_SIZE-2, ncol=2)
 ax.set_ylabel('Throughput (requests/sec)')
 #ax.set_ylim(65000, None)
-ax.set_yticks([0, 2000, 4000, 6000, 8000])
-ax.set_yticklabels(['0', '2K', '4K', '6K', '8K'])
+# ax.set_yticks([0, 2000, 4000, 6000, 8000])
+# ax.set_yticklabels(['0', '2K', '4K', '6K', '8K'])
 ax.set_xticklabels(['native', 'virtine', 'snapshot'])
 ax.grid(alpha=0.5, zorder=0, axis='y', which='major')
 plt.tight_layout()
