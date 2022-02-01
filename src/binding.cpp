@@ -144,6 +144,7 @@ extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz, 
       long long arg2 = regs.rdx;
       long long arg3 = regs.rcx;
       void *ptr = 0;
+			// printf("hcall(%d, %llx, %llx, %llx)\n", nr, arg1, arg2, arg3);
 #define TRANSLATE(type, addr) (type)((off_t)ram + (addr))
       if (hypercall_allowed(nr, hypercall_whitelist)) {
         switch (regs.rdi) {
@@ -212,6 +213,9 @@ extern "C" void wasp_run_virtine(const char *code, size_t codesz, size_t memsz, 
             regs.rax = -ENOSYS;
             break;
         }
+
+				// write any update
+				vm->write_regs(regs);
       } else {
         fprintf(stderr, "Virtine tried to use non-whitelisted hypercall %d\n", nr);
         fprintf(stderr, "    Permitted hypercalls:");

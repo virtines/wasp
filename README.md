@@ -33,7 +33,7 @@ The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
 ## Build Instructions
 
-### Prerequisites
+### Prerequisites and Building
 - `nasm`
 - `libcurl` dev headers (`libcurl-dev` on recent Ubuntu is an aliased package; we had to use `libcurl4-openssl-dev`)
 - `clang` version 10 or newer
