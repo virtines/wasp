@@ -31,5 +31,5 @@ script:
   - cmake --version  && which cmake
   - llvm-config --version  && which llvm-config
   - make BUILD_ENV=travis
-  - make install 
+  - sudo make install 
   - make smoketest
