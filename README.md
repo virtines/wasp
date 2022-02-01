@@ -97,7 +97,7 @@ what is included from the paper:
 - Virtine creation latency microbenchmark (`fig11.pdf`); Figure 11 from the paper.
 - Effect of image size on virtine start-up latency  (`fig12.pdf`); Figure 12 from the paper.
 - Virtine HTTP server performance (`fig13_tput.pdf`, `fig13_lat.pdf`); Figure 13 from the paper.
-- TODO OpenSSL speed benchmark
+- OpenSSL data (`data/openssl.txt`); Section 6.4 from the paper.
 - JavaScript virtines performance (`fig14.pdf`); Figure 14 from the paper.
 
 
