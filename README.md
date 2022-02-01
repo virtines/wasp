@@ -153,8 +153,7 @@ _start:
 ```
 
 The compilation of a virtine is up to the developer. In this case, `virtine.bin` can
-be compiled using `nasm -fbin virtine.asm -o virtine.bin`, which will produce a 3 byte
-binary.
+be compiled using `nasm` which will produce a 3 byte binary.
 
 The final application can be compiled and run:
 
