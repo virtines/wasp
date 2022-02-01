@@ -73,13 +73,18 @@ If the smoketest doesn't panic, Wasp is functional at this point. We tested
 this most recently on Chameleon Cloud Ubuntu 20.04.3 LTS (baremetal Skylake, 48
 cores, Xeon Gold 6126) Kernel version 5.4.0-91-generic.
 
+If the smoke test does panic, it may be because `/dev/kvm` is owned by root.
+It's advised to allow anyone to open `/dev/kvm` when gathering the artifacts.
+To do so, run `sudo chmod 666 /dev/kvm`. Feel free to restore it after running
+the artifact.
+
 ## Reproduce Paper Results
 
 To re-run the experiments and reproduce relevant figures from the paper,
 simply run:
 
 ```bash
-make artifacts
+make artifacts.tar
 ```
 
 This will produce a `.tar` archive containing relevant figures and data in `artifacts.tar`. Here is
