@@ -230,20 +230,25 @@ int main(int argc, char **argv) {
 }
 ```
 
-If compiled with `vcc` - a drop in for clang/gcc - a virtine for square will be spawned and executed
-whenever square is called. By default, the virtine utilizes *snapshotting* to decrease latencies. This
-can be disabled by defining the environment variable `WASP_NO_SNAPSHOT=1` if you wish to see it's effect.
-The compiler extension is currently in it's early stages, and suffers from much of the weaknesses that
-a typical C compiler might (no full program analysis, pointer aliasing, inability to
-inline functions from other c files, unsized pointers, etc), but we imagine a future where a high level
-language like SML may solve many of those problems.
+If compiled with `vcc` - a drop in for clang/gcc - a virtine for square will be
+spawned and executed whenever square is called. By default, the virtine
+utilizes *snapshotting* to decrease latencies. This can be disabled by defining
+the environment variable `WASP_NO_SNAPSHOT=1` if you wish to see it's effect.
+The compiler extension is currently in it's early stages, and suffers from much
+of the weaknesses that a typical C compiler might (no full program analysis,
+pointer aliasing, inability to inline functions from other c files, unsized
+pointers, etc), but we imagine a future where a high level language like SML
+may solve many of those problems. If anything doesn't work, please submit an
+issue and we'll work on getting it figured out!
 
-
-If anything doesn't work, please submit an issue and we'll work on getting it figured out!
 
 ## Code Structure
-All of the wasp runtime is implemented in `src/` and `include/`, the LLVM pass is implemented in `pass/`,
-and `test/` contains a set of tests which produce the data from the paper.
+All of the wasp runtime is implemented in `src/` and `include/`, the LLVM pass
+is implemented in `pass/`, and `test/` contains a set of tests which produce
+the data from the paper. The `data_example` directory contains example data
+gathered from a few machines. For example `AMD-EPYC-7302P-cloudlab-c6525-25g/`
+contains the data gathered from the machine using the `cloudlab.profile` and
+`Intel-XEON-Gold-6126-chameleon` is from an allocation on chameleon.
 
 ## Acknowledgements
 
