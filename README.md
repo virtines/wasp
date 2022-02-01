@@ -39,13 +39,20 @@ an allocation on Cloudlab or Chameleon Cloud, as outlined below:
 
 ### Cloudlab Configuration
 
-- Apply for a cloudlab account if you do not have one
+- Apply for a Cloudlab account if you do not have one
 - Once logged in, Click `Experiments` then `Create Experiment Profile`
 - Upload the `cloudlab.profile` file provided in the root of this repo
 - Create the instance using that profile and SSH into it following cloudlab's docs
 
+### Chameleon Configuration
+- Apply for a Chameleon account if you do not already have one.
+- Allocate a lease for one host (any x86 host with virtualization hardware should do, though we've tested on the default Haswell and Skylake nodes). 
+- Select "Images" from the side bar and search for the "CC-Ubuntu20.04". Create an instance from this image by selecting
+"Launch" on the right. Tie this instance to the lease you created before under the "Reservation" drop-down. Make sure
+you set up a key pair and a floating IP so you can ssh to the instance. 
+- Once the instance launches, ssh to it using the default Chameleon account (e.g., `ssh cc@192.168.1.1`). 
 
-
+Now you can proceed to building and running Wasp, described below. 
 
 ## Build Instructions
 
