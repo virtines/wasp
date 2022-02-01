@@ -18,8 +18,8 @@ virtine int foo(int arg) {
 - [Wasp](#wasp)
   * [Paper](#paper)
   * [Build Instructions](#build-instructions)
-  * [Run Basic Virtine Tests](#run-virtine-tests)
-  * [Reproduce Paper Results](#reproduce-paper-results)
+  * [Running Basic Virtine Tests](#running-virtine-tests)
+  * [Reproducing Paper Results](#reproducing-paper-results)
   * [Embedding Wasp](#embedding-wasp)
   * [Code Structure](#code-structure)
   * [Acknowledgements](#acknowledgements)
@@ -70,7 +70,7 @@ sudo make install
 `make install` simply copies the resulting binaries to `/usr/local/{lib,bin,include}`, and will
 not run any programs other than `mkdir` and `install`.
 
-## Run Virtine Tests
+## Running Virtine Tests
 
 To ensure Wasp is functional, we have included a "smoke test" in the repo. You can run it like so:
 
@@ -87,7 +87,7 @@ It's advised to allow anyone to open `/dev/kvm` when gathering the artifacts.
 To do so, you can run `sudo chmod 666 /dev/kvm`. Feel free to restore it after running
 the artifact.
 
-## Reproduce Paper Results
+## Reproducing Paper Results
 
 To re-run the experiments and reproduce relevant figures from the paper,
 simply run:
