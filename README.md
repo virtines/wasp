@@ -113,8 +113,8 @@ their generations.
 ## Embedding Wasp
 Wasp can be used two ways: as a library or as a compiler extension. Directly interfacing
 with Wasp can provide higher control over the execution of a virtine leading to lower
-latencies and smaller attack surfaces. Using wasp through the compiler eases development
-significantly, but results in higher latencies and larger binaries due to it's general
+overheards. Using wasp through the compiler eases development
+significantly, but results in higher overheads and larger binaries due to it's general
 purpose functionality.
 
 ### Direct API Access
