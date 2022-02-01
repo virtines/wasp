@@ -68,7 +68,7 @@ TODO
 make smoketest
 ```
 
-If the smoketest doesn't panic, wasp is functional at this point. We tested
+If the smoketest doesn't panic, Wasp is functional at this point. We tested
 this most recently on Chameleon Cloud Ubuntu 20.04.3 LTS (baremetal Skylake, 48
 cores, Xeon Gold 6126) Kernel version 5.4.0-91-generic.
 
