@@ -18,24 +18,18 @@ addons:
       - llvm-dev
       - clang-10
       - gcc
-      - locate
       - g++
 env: 
   - CC=clang-10
     CXX=clang++-10
 
 script: 
-  - sudo updatedb
-  - locate cmake
-  - locate llvm-config
-  - sudo apt remove llvm-7
   - sudo ln -s /usr/bin/clang-10 /usr/local/bin/clang
   - sudo ln -s /usr/bin/clang++-10 /usr/local/bin/clang++
   - export CC=/usr/bin/clang-10
   - export CXX=/usr/bin/clang++-10
   - cmake --version  && which cmake
   - llvm-config --version  && which llvm-config
-  - locate llvm-config
-  - make 
+  - make BUILD_ENV=travis
   - make install 
   - make smoketest
