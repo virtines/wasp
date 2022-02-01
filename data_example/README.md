@@ -1,7 +1,8 @@
 # Data Examples
 ## AMD-EPYC-7281-tinker-2/
 - software:  Linux tinker-2 5.14.16-201.fc34.x86_64 #1 SMP Wed Nov 3 13:57:29 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
-- Hardware: ```
+- Hardware:
+```
 processor	: 0
 vendor_id	: AuthenticAMD
 cpu family	: 23
@@ -33,7 +34,8 @@ power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
 ```
 ## AMD-EPYC-7302P-cloudlab-c6525-25g/
 - software:  Linux node.virtines.utah.cloudlab.us 5.4.0-91-generic #102-Ubuntu SMP Fri Nov 5 16:31:28 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
-- Hardware: ```
+- Hardware:
+```
 processor	: 0
 vendor_id	: AuthenticAMD
 cpu family	: 23
@@ -65,7 +67,8 @@ power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
 ```
 ## AMD-Opteron-4122-r415/
 - software:  Linux v-test-r415-5 5.11.0-40-generic #44~20.04.2-Ubuntu SMP Tue Oct 26 18:07:44 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
-- Hardware: ```
+- Hardware:
+```
 processor	: 0
 vendor_id	: AuthenticAMD
 cpu family	: 16
@@ -97,7 +100,8 @@ power management: ts ttp tm stc 100mhzsteps hwpstate
 ```
 ## AMD-Ryzen-3600x-desktop/
 - software:  Linux deimos 5.16.4-arch1-1 #1 SMP PREEMPT Sat, 29 Jan 2022 19:08:13 +0000 x86_64 GNU/Linux
-- Hardware: ```
+- Hardware:
+```
 processor	: 0
 vendor_id	: AuthenticAMD
 cpu family	: 23
@@ -129,7 +133,8 @@ power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
 ```
 ## Intel-XEON-Gold-6126-chameleon/
 - software:  Linux virtines-ae 5.4.0-91-generic #102-Ubuntu SMP Fri Nov 5 16:31:28 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
-- Hardware: ```
+- Hardware:
+```
 processor	: 0
 vendor_id	: GenuineIntel
 cpu family	: 6
@@ -161,7 +166,8 @@ processor	: 1
 ```
 ## Intel-i7-6600U-thinkpad-p40-yoga/
 - software:  Linux thinkpad 5.16.4-arch1-1 #1 SMP PREEMPT Sat, 29 Jan 2022 19:08:13 +0000 x86_64 GNU/Linux
-- Hardware: ```
+- Hardware:
+```
 processor	: 0
 vendor_id	: GenuineIntel
 cpu family	: 6
@@ -193,7 +199,8 @@ power management:
 ```
 ## VIRT-Intel-XEON-E5-2670-nested/
 - software:  Linux fenrir 5.11.11-arch1-1 #1 SMP PREEMPT Tue, 30 Mar 2021 14:10:17 +0000 x86_64 GNU/Linux
-- Hardware: ```
+- Hardware:
+```
 processor	: 0
 vendor_id	: GenuineIntel
 cpu family	: 6
