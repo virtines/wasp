@@ -1,18 +1,19 @@
 dist: focal
-  addons:
-    apt:
-      update: true
-      packages:
-        - nasm
-        - libcurl4-openssl-dev
-        - cmake
-        - llvm
-        - llvm-dev
-        - clang-12
-        - gcc
-        - g++
-  env: 
-    - CC=clang-12
-      CXX=clang++-12
+
+addons:
+  apt:
+    update: true
+    packages:
+      - nasm
+      - libcurl4-openssl-dev
+      - cmake
+      - llvm
+      - llvm-dev
+      - clang-12
+      - gcc
+      - g++
+env: 
+  - CC=clang-12
+    CXX=clang++-12
 
 script: make && sudo make install && make smoketest
