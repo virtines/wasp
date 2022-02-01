@@ -3,7 +3,7 @@ echo "# Data Examples"
 for d in */;
 do
 	if [ -d "$d/data" ]; then
-    echo "## $d"
+		echo "## [$d](https://github.com/virtines/wasp/tree/main/data_example/$d)"
 		echo '- software: ' $(cat "$d/data/uname")
 		echo '- Hardware:'
 		echo '```' 
