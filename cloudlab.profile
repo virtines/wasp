@@ -1,9 +1,3 @@
-"""An example of constructing a profile with a single raw PC, that is set to run a specific operating system image (Ubuntu). It can be instantiated on any cluster, this particular Ubuntu image is available on all clusters.
-
-Instructions:
-Wait for the profile instance to start, then click on the node in the topology and choose the `shell` menu item. 
-"""
-
 # Import the Portal object.
 import geni.portal as portal
 # Import the ProtoGENI library.
