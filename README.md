@@ -3,10 +3,10 @@
 
 # Wasp
 
-Wasp is an embeddable micro-hypervisor designed to support _virtines_, lightweight,
+Wasp is an embeddable micro-hypervisor designed to support _virtines_, lightweight
 isolated execution contexts for individual functions. Virtines can either be created
 manually by invoking a runtime API, or automatically by using our Clang/LLVM compiler
-extensions. In the latter case, a develper can create a virtine by simply adding
+extensions. In the latter case, a developer can create a virtine by simply adding
 a keyword to a C function:
 
 ```C
@@ -85,7 +85,7 @@ This will produce a `.tar` archive containing relevant figures and data in `arti
 what is included from the paper:
 
 - Context creation experiment (`fig8.pdf`); Figures 2 and 8 from the paper. Figure 8 is a superset of Figure 2. 
-- Boot time breakdown (`data/table1.csv`); Table 1 form the paper.
+- Boot time breakdown (`data/table1.csv`); Table 1 from the paper.
 - Mode latency experiment (`fig3.pdf`); Figure 3 from the paper.
 - Echo server boot latency (`fig4.pdf`); Figure 4 from the paper.
 - Virtine creation latency microbenchmark (`fig11.pdf`); Figure 11 from the paper.
