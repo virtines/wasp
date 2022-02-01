@@ -66,13 +66,14 @@ cd wasp
 make
 sudo make install
 ```
-
+The build should take less than a minute or so. 
 `make install` simply copies the resulting binaries to `/usr/local/{lib,bin,include}`, and will
 not run any programs other than `mkdir` and `install`.
 
 ## Running Virtine Tests
 
-To ensure Wasp is functional, we have included a "smoke test" in the repo. You can run it like so:
+To ensure Wasp is functional, we have included a "smoke test" in the repo. You can run it like so (it should complete pretty
+much immediately):
 
 ```bash
 make smoketest
@@ -96,7 +97,8 @@ simply run:
 make artifacts.tar
 ```
 
-This will produce a `.tar` archive containing all relevant figures and data in `artifacts.tar`. Here is
+This will produce a `.tar` archive containing all relevant figures and data in `artifacts.tar`. It should take about
+5 minutes to reproduce all results and plots this way. Here is
 what is included from the paper:
 
 - Context creation experiment (`fig8.pdf`); Figures 2 and 8 from the paper. Figure 8 is a superset of Figure 2. 
@@ -116,7 +118,8 @@ id of the figure (fig14.pdf uses `data_fig14`, `fig13_lat.pdf` uses `data_fig13_
 Due to the nature of microarchitectural differences across CPUs, the
 data produced from some of these tests will vary slightly from machine to machine. In particular, we have noticed that
 Figures 3 and 8 and Table 1 show some discrepancies between AMD and Intel; we also see some variance across
-microarchitectural generations. 
+microarchitectural generations.  Once you've collected results, you can compare them to some of the reference
+data we've collected in the `data_example` directory. See [here](#code-structure) for more.
 
 
 ## Embedding Wasp
@@ -254,7 +257,8 @@ is implemented in `pass/`, and `test/` contains a set of tests which produce
 the data from the paper. The `data_example` directory contains example data
 gathered from a few machines. For example `AMD-EPYC-7302P-cloudlab-c6525-25g/`
 contains the data gathered from the machine using the `cloudlab.profile` and
-`Intel-XEON-Gold-6126-chameleon` is from an allocation on chameleon.
+`Intel-XEON-Gold-6126-chameleon` is from an allocation on chameleon. Each subdirectory
+contains a `README.md` file describing the machine and software environment. 
 
 ## Acknowledgements
 
