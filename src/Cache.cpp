@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the Wasp hypervisor developed at Illinois Institute of
  * Technology (HExSA Lab) and Northwestern University with funding from the
  * United States National Science Foundation.
@@ -59,6 +59,25 @@ void wasp::Cache::set_binary(const void *data, size_t size, off_t start) {
   m_binary = data;
   m_binary_size = size;
   m_binary_start = start;
+}
+
+
+
+void wasp::Cache::load_binary(const char *binary, off_t start) {
+  FILE *stream = fopen(binary, "r");
+  if (stream == NULL) {
+    fprintf(stderr, "wasp::Cache: binary '%s' could not be loaded.\n", binary);
+  }
+
+  fseek(stream, 0, SEEK_END);
+  size_t sz = ftell(stream);
+  fseek(stream, 0, SEEK_SET);
+  void *bin = malloc(sz);
+  // printf("mem: %p\n", mem);
+  fread(bin, sz, 1, stream);
+  fclose(stream);
+  // TODO: we just leak the binary here.
+  set_binary(bin, sz, start);
 }
 
 

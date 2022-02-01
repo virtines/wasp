@@ -275,11 +275,19 @@ data/table1.csv:
 	@mkdir -p data
 	build/test/boottime > data/table1.csv
 
+
+
+build/wasp-openssl:
+	cd build && git clone https://github.com/virtines/wasp-openssl.git --depth 1
+data/openssl.txt: build/wasp-openssl
+	cd build/wasp-openssl && ./virtine-build.sh
+	cd build/wasp-openssl && ./virtine-test.sh > ../../$@
+
 table1_data: data/table1.csv
 
 ALLPLOTS:=fig3.pdf fig8.pdf fig11.pdf fig12.pdf fig13_tput.pdf fig13_lat.pdf fig14.pdf
 
-alldata: table1_data fig3_data fig8_data fig11_data fig12_data fig13_tput_data fig13_lat_data fig14_data
+alldata: table1_data fig3_data fig8_data fig11_data fig12_data fig13_tput_data fig13_lat_data fig14_data data/openssl.txt
 artifacts: all alldata $(ALLPLOTS)
 
 artifacts.tar: artifacts

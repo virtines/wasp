@@ -39,6 +39,7 @@ namespace wasp {
 
 		// the `data` arg must outlive the Cache
 		void set_binary(const void *data, size_t size, off_t start);
+		void load_binary(const char *bianry, off_t start);
    private:
 
 		void lock(void);
