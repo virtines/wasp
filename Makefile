@@ -117,7 +117,7 @@ fig3_data: data/fig3 data/fig3/fib16.csv data/fig3/fib32.csv data/fig3/fib64.csv
 fig3.pdf: fig3_data venv
 	$(VENV)/bin/python plotgen/fig3-mode-latency.py data/fig3/ $@
 fig3_gold.pdf: venv
-	$(VENV)/bin/python plotgen/fig3-mode-latency.py data_golden/fig3/ $@
+	$(VENV)/bin/python plotgen/fig3-mode-latency.py data_example/gold/fig3/ $@
 
 
 
@@ -129,7 +129,7 @@ fig4_data: data/fig4 data/fig4/echo-server.csv
 fig4.pdf: fig4_data venv
 	$(VENV)/bin/python plotgen/fig4-boot-milestones.py data/fig4/ $@
 fig4_gold.pdf: venv
-	$(VENV)/bin/python plotgen/fig4-boot-milestones.py data_golden/fig4/ $@
+	$(VENV)/bin/python plotgen/fig4-boot-milestones.py data_example/gold/fig4/ $@
 
 
 
@@ -157,7 +157,7 @@ fig8_data: data/fig8 data/fig8/linux_thread.csv data/fig8/linux_process.csv data
 fig8.pdf: fig8_data venv
 	$(VENV)/bin/python plotgen/fig8-wasp-latency.py data/fig8/ $@
 fig8_gold.pdf: venv
-	$(VENV)/bin/python plotgen/fig8-wasp-latency.py data_golden/fig8/ $@
+	$(VENV)/bin/python plotgen/fig8-wasp-latency.py data_example/gold/fig8/ $@
 
 
 
@@ -201,7 +201,7 @@ fig11_data: data/fig11 $(FIG11_DATA_FILES)
 fig11.pdf: fig11_data venv
 	@$(VENV)/bin/python plotgen/fig11-fib-latency.py data/fig11 $@
 fig11_gold.pdf: venv
-	@$(VENV)/bin/python plotgen/fig11-fib-latency.py data_golden/fig11 $@
+	@$(VENV)/bin/python plotgen/fig11-fib-latency.py data_example/gold/fig11 $@
 
 
 
@@ -217,7 +217,7 @@ fig12_data: data/fig12 data/fig12/image_size.csv
 fig12.pdf: fig12_data venv
 	$(VENV)/bin/python plotgen/fig12-image-size.py data/fig12/ $@
 fig12_gold.pdf: venv
-	$(VENV)/bin/python plotgen/fig12-image-size.py data_golden/fig12/ $@
+	$(VENV)/bin/python plotgen/fig12-image-size.py data_example/gold/fig12/ $@
 
 
 data/fig14/virtine_snapshot_noteardown.csv:
@@ -236,7 +236,7 @@ fig14_data: data/fig14 data/fig14/baseline.csv data/fig14/virtine.csv data/fig14
 fig14.pdf: fig14_data venv
 	$(VENV)/bin/python plotgen/fig14-js.py data/fig14/ $@
 fig14_gold.pdf: venv
-	$(VENV)/bin/python plotgen/fig14-js.py data_golden/fig14/ $@
+	$(VENV)/bin/python plotgen/fig14-js.py data_example/gold/fig14/ $@
 
 
 
