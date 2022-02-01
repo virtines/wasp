@@ -3,4 +3,4 @@
 clang \
 	-fno-stack-protector \
 	-Wl,-rpath=/usr/local/lib -Xclang -load -Xclang \
-	/usr/local/lib/virtine/VirtinePass.so -lm -lwasp -Wno-unused-command-line-argument -g $@
+	/usr/local/lib/virtine/VirtinePass.so -D__VCC__ -lm -lwasp -Wno-unused-command-line-argument -g $@

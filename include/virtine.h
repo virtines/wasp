@@ -1,5 +1,5 @@
 #pragma once
-/* 
+/*
  * This file is part of the Wasp hypervisor developed at Illinois Institute of
  * Technology (HExSA Lab) and Northwestern University with funding from the
  * United States National Science Foundation.
@@ -20,8 +20,6 @@
 #define STRINGIFY_(x) #x
 #define STRINGIFY(x) STRINGIFY_(x)
 
-// A virtine is just a function located in a certain segment
-#define virtine __attribute__((section("$__VIRTINE__$"), noinline))
 
 #define HCALL_exit 0
 #define HCALL_close 1
@@ -57,21 +55,28 @@ struct virtine_config {
   uint64_t hypercall_whitelist;
 };
 
-#define virtine_cfg(config)                                                    \
-  __attribute__((section("$__VIRTINE__cfg=" #config), noinline))
 
+#ifdef __VCC__
+// A virtine is just a function located in a certain segment
+#define virtine __attribute__((section("$__VIRTINE__$"), noinline))
+#define virtine_cfg(config) __attribute__((section("$__VIRTINE__cfg=" #config), noinline))
 #define VIRTINE_LINE_CONFIG_NAME(name) "$__VIRTINE__cfg=" #name
-
-#define virtine_whitelist(wl)                                                  \
-  struct virtine_config VARNAME(__config_) = {                                 \
-      .hypercall_whitelist = (wl),                                             \
-  };                                                                           \
-  __attribute__((section("$__VIRTINE__cfg=__config_" STRINGIFY(__LINE__)),     \
-                 noinline))
+#define virtine_whitelist(wl)                  \
+  struct virtine_config VARNAME(__config_) = { \
+      .hypercall_whitelist = (wl),             \
+  };                                           \
+  __attribute__((section("$__VIRTINE__cfg=__config_" STRINGIFY(__LINE__)), noinline))
 
 #define virtine_strict virtine_whitelist(VIRTINE_BLOCK_ALL)
 
-#define virtine_inline_config(cfg)                                             \
-  struct virtine_config VARNAME(__config_) = {cfg};                            \
-  __attribute__((section("$__VIRTINE__cfg=__config_" STRINGIFY(__LINE__)),     \
-                 noinline))
+#define virtine_inline_config(cfg)                  \
+  struct virtine_config VARNAME(__config_) = {cfg}; \
+  __attribute__((section("$__VIRTINE__cfg=__config_" STRINGIFY(__LINE__)), noinline))
+
+#else
+#define virtine
+#define virtine_cfg(...)
+#define virtine_whitelist(...)
+#define virtine_strict
+#define virtine_inline_config(...)
+#endif
