@@ -1,6 +1,5 @@
 dist: focal
 sudo: required
-
 language: c
 os: linux
 
@@ -15,8 +14,8 @@ addons:
       - nasm
       - libcurl4-openssl-dev
       - cmake
-      - llvm-10
-      - llvm-10-dev
+      - llvm
+      - llvm-dev
       - clang-10
       - gcc
       - g++
@@ -25,12 +24,13 @@ env:
     CXX=clang++-10
 
 script: 
-  - ln -s /usr/bin/clang-10 /usr/local/bin/clang
-  - ln -s /usr/bin/clang++-10 /usr/local/bin/clang++
+  - sudo ln -s /usr/bin/clang-10 /usr/local/bin/clang
+  - sudo ln -s /usr/bin/clang++-10 /usr/local/bin/clang++
   - export CC=/usr/bin/clang-10
   - export CXX=/usr/bin/clang++-10
   - cmake --version  && which cmake
-  - llvm-config --version 
+  - llvm-config --version  && which llvm-config
+  - locate llvm-config
   - make 
   - make install 
   - make smoketest
