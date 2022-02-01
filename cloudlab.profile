@@ -19,6 +19,7 @@ request = pc.makeRequestRSpec()
 node = request.RawPC("node")
 # Set the OS image for the node.
 node.disk_image = 'urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD'
+node.hardware_type = 'c6525-25g'
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
