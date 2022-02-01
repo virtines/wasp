@@ -47,7 +47,7 @@ For example, on an Ubuntu machine:
 
 ```bash
 sudo apt update
-sudo apt install -y cmake nasm llvm llvm-dev clang libcurl4-openssl-dev
+sudo apt install -y cmake nasm llvm llvm-dev clang libcurl4-openssl-dev python3.8-venv
 ```
 
 
