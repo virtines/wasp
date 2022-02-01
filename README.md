@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
 [org 0x8000]
 global _start
 _start:
-	;; exit
+	;; magic exit hypercall
 	out 0xFA, eax
 ```
 
