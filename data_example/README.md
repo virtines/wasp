@@ -1,4 +1,6 @@
 # Data Examples
+This directory contains various artifacts generated on a wide variety
+of processors and microarchitectures. Software/Hardware details are below:
 ## [AMD-EPYC-7281-tinker-2/](https://github.com/virtines/wasp/tree/main/data_example/AMD-EPYC-7281-tinker-2/)
 - Software:  Linux tinker-2 5.14.16-201.fc34.x86_64 #1 SMP Wed Nov 3 13:57:29 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
 - Hardware:

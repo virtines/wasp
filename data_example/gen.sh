@@ -1,4 +1,6 @@
 echo "# Data Examples"
+echo "This directory contains various artifacts generated on a wide variety"
+echo "of processors and microarchitectures. Software/Hardware details are below:"
 
 for d in */;
 do
