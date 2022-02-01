@@ -62,7 +62,6 @@ sudo make install
 TODO: explain what make install is actually doing
 
 ## Run Virtine Tests
-TODO
 
 ```bash
 make smoketest
@@ -80,6 +79,9 @@ simply run:
 ```bash
 make artifacts
 ```
+
+TODO: explain how to run individual experiments. Discuss what kind of data they might see
+on different machines. 
 
 ## Embedding Wasp
 
