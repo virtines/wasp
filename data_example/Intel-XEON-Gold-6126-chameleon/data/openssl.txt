@@ -1,0 +1,8 @@
+version: 3.0.0-alpha7-dev
+built on: built on: Tue Feb  1 20:36:48 2022 UTC
+options:bn(64,64) rc4(16x,int) des(int) aes(partial) idea(int) blowfish(ptr) 
+compiler: /usr/local/bin/vcc -fPIC -pthread -m64 -Wa,--noexecstack -Qunused-arguments -Wall -O3 -DOPENSSL_USE_NODELETE -DL_ENDIAN -DOPENSSL_PIC -DOPENSSL_BUILDING_OPENSSL -DNDEBUG
+CPUINFO: OPENSSL_ia32cap=0x7dfef3fdffebffff:0x0 env:~0x200000200000000
+The 'numbers' are in 1000s of bytes per second processed.
+type             16 bytes     64 bytes    256 bytes   1024 bytes   8192 bytes  16384 bytes
+aes-128-cbc       1122.83k     4512.04k    17428.31k    17553.07k    17629.18k    17651.03k
