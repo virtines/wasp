@@ -80,6 +80,20 @@ simply run:
 make artifacts
 ```
 
+This will produce a `.tar` archive containing relevant figures and data in `artifacts.tar`. Here is
+what is included from the paper:
+
+- Context creation experiment (`fig8.pdf`); Figures 2 and 8 from the paper. Figure 8 is a superset of Figure 2. 
+- Boot time breakdown (`data/table1.csv`); Table 1 form the paper.
+- Mode latency experiment (`fig3.pdf`); Figure 3 from the paper.
+- Echo server boot latency (`fig4.pdf`); Figure 4 from the paper.
+- Virtine creation latency microbenchmark (`fig11.pdf`); Figure 11 from the paper.
+- Effect of image size on virtine start-up latency  (`fig12.pdf`); Figure 12 from the paper.
+- Virtine HTTP server performance (`fig13_tput.pdf`, `fig13_lat.pdf`); Figure 13 from the paper.
+- TODO OpenSSL speed benchmark
+- JavaScript virtines performance (`fig14.pdf`); Figure 14 from the paper.
+
+
 TODO: explain how to run individual experiments. Discuss what kind of data they might see
 on different machines. 
 

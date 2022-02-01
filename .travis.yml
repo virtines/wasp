@@ -14,7 +14,7 @@ addons:
       - nasm
       - libcurl4-openssl-dev
       - cmake
-      - llvm@10
+      - llvm-10
       - llvm-10-dev
       - clang-10
       - gcc
