@@ -34,7 +34,7 @@ address sizes	: 43 bits physical, 48 bits virtual
 power management: ts ttp tm hwpstate cpb eff_freq_ro [13] [14]
 
 ```
-## [AMD-EPYC-7302P-cloudlab-c6525-25g/](https://github.com/virtines/wasp/tree/main/data_example/AMD-EPYC-7302P-cloudlab-c6525-25g/)
+## [AMD-EPYC-7302P-cloudlab-/](https://github.com/virtines/wasp/tree/main/data_example/AMD-EPYC-7302P-cloudlab-/)
 - Software:  Linux node.virtines.utah.cloudlab.us 5.4.0-91-generic #102-Ubuntu SMP Fri Nov 5 16:31:28 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
 - Hardware:
 ```
