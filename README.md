@@ -18,8 +18,8 @@ virtine int foo(int arg) {
 - [Wasp](#wasp)
   * [Paper](#paper)
   * [Build Instructions](#build-instructions)
-  * [Run Basic Virtine Tests](#run-virtine-tests)
-  * [Reproduce Paper Results](#reproduce-paper-results)
+  * [Running Basic Virtine Tests](#running-virtine-tests)
+  * [Reproducing Paper Results](#reproducing-paper-results)
   * [Embedding Wasp](#embedding-wasp)
   * [Code Structure](#code-structure)
   * [Acknowledgements](#acknowledgements)
@@ -31,10 +31,30 @@ virtine int foo(int arg) {
 Nicholas C. Wanninger, Joshua J. Bowden, Kyle C. Hale<br>
 The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
-## Build Instructions
+## Environment Setup
 
-### Environment Setup
-TODO: describe chameleon, cloudlab setup
+Wasp can be built and evaluated on any Linux x86 hardware that supports
+hardware virtualization through KVM. For evaluating the artifacts, we recommend
+an allocation on Cloudlab or Chameleon Cloud, as outlined below:
+
+### Cloudlab Configuration
+
+- Apply for a Cloudlab account if you do not have one
+- Once logged in, Click `Experiments` then `Create Experiment Profile`
+- Upload the `cloudlab.profile` file provided in the root of this repo
+- Create the instance using that profile and SSH into it following cloudlab's docs
+
+### Chameleon Configuration
+- Apply for a Chameleon account if you do not already have one.
+- Allocate a lease for one host (any x86 host with virtualization hardware should do, though we've tested on the default Haswell and Skylake nodes). 
+- Select "Images" from the side bar and search for the "CC-Ubuntu20.04". Create an instance from this image by selecting
+"Launch" on the right. Tie this instance to the lease you created before under the "Reservation" drop-down. Make sure
+you set up a key pair and a floating IP so you can ssh to the instance. 
+- Once the instance launches, ssh to it using the default Chameleon account (e.g., `ssh cc@192.168.1.1`). 
+
+Now you can proceed to building and running Wasp, described below. 
+
+## Build Instructions
 
 ### Prerequisites 
 
@@ -66,13 +86,14 @@ cd wasp
 make
 sudo make install
 ```
-
+The build should take less than a minute or so. 
 `make install` simply copies the resulting binaries to `/usr/local/{lib,bin,include}`, and will
 not run any programs other than `mkdir` and `install`.
 
-## Run Virtine Tests
+## Running Virtine Tests
 
-To ensure Wasp is functional, we have included a "smoke test" in the repo. You can run it like so:
+To ensure Wasp is functional, we have included a "smoke test" in the repo. You can run it like so (it should complete pretty
+much immediately):
 
 ```bash
 make smoketest
@@ -87,7 +108,7 @@ It's advised to allow anyone to open `/dev/kvm` when gathering the artifacts.
 To do so, you can run `sudo chmod 666 /dev/kvm`. Feel free to restore it after running
 the artifact.
 
-## Reproduce Paper Results
+## Reproducing Paper Results
 
 To re-run the experiments and reproduce relevant figures from the paper,
 simply run:
@@ -96,7 +117,8 @@ simply run:
 make artifacts.tar
 ```
 
-This will produce a `.tar` archive containing all relevant figures and data in `artifacts.tar`. Here is
+This will produce a `.tar` archive containing all relevant figures and data in `artifacts.tar`. It should take about
+5 minutes to reproduce all results and plots this way. Here is
 what is included from the paper:
 
 - Context creation experiment (`fig8.pdf`); Figures 2 and 8 from the paper. Figure 8 is a superset of Figure 2. 
@@ -116,7 +138,8 @@ id of the figure (fig14.pdf uses `data_fig14`, `fig13_lat.pdf` uses `data_fig13_
 Due to the nature of microarchitectural differences across CPUs, the
 data produced from some of these tests will vary slightly from machine to machine. In particular, we have noticed that
 Figures 3 and 8 and Table 1 show some discrepancies between AMD and Intel; we also see some variance across
-microarchitectural generations. 
+microarchitectural generations.  Once you've collected results, you can compare them to some of the reference
+data we've collected in the `data_example` directory. See [here](#code-structure) for more.
 
 
 ## Embedding Wasp
@@ -253,8 +276,10 @@ All of the wasp runtime is implemented in `src/` and `include/`, the LLVM pass
 is implemented in `pass/`, and `test/` contains a set of tests which produce
 the data from the paper. The `data_example` directory contains example data
 gathered from a few machines. For example `AMD-EPYC-7302P-cloudlab-c6525-25g/`
-contains the data gathered from the machine using the `cloudlab.profile` and
-`Intel-XEON-Gold-6126-chameleon` is from an allocation on chameleon.
+contains the data gathered from the machine using the `cloudlab.profile`, and
+`Intel-XEON-Gold-6126-chameleon` is from an allocation on chameleon. See
+`data_example/README.md` for more details on each machine's hadware and
+software. 
 
 ## Acknowledgements
 
