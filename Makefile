@@ -280,6 +280,7 @@ data/table1.csv:
 build/wasp-openssl:
 	cd build && git clone https://github.com/virtines/wasp-openssl.git --depth 1
 data/openssl.txt: build/wasp-openssl
+	mkdir -p data
 	cd build/wasp-openssl && ./virtine-build.sh
 	cd build/wasp-openssl && ./virtine-test.sh > ../../$@
 
