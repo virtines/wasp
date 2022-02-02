@@ -283,6 +283,11 @@ data/openssl.txt: build/wasp-openssl
 	cd build/wasp-openssl && ./virtine-build.sh
 	cd build/wasp-openssl && ./virtine-test.sh > ../../$@
 
+data/openssl_baseline.txt:
+	mkdir -p data
+	openssl speed -elapsed -evp aes-128-cbc > $@
+
+
 table1_data: data/table1.csv
 
 
@@ -296,7 +301,7 @@ data/uname:
 	@uname -a > $@
 
 ALLPLOTS:=fig3.pdf fig4.pdf fig8.pdf fig11.pdf fig12.pdf fig13_tput.pdf fig13_lat.pdf fig14.pdf
-alldata: table1_data fig3_data fig4_data fig8_data fig11_data fig12_data fig13_tput_data fig13_lat_data fig14_data data/openssl.txt data/uname data/cpuinfo
+alldata: table1_data fig3_data fig4_data fig8_data fig11_data fig12_data fig13_tput_data fig13_lat_data fig14_data data/openssl.txt data/openssl_baseline.txt data/uname data/cpuinfo
 artifacts: all alldata $(ALLPLOTS)
 
 artifacts.tar: artifacts
