@@ -1,3 +1,6 @@
+# This script generates the README.md file in the current directory.
+# This is because we're somewhat lazy :^)
+
 echo "# Data Examples"
 echo "This directory contains various artifacts generated on a wide variety"
 echo "of processors and microarchitectures. Software/Hardware details are below:"
