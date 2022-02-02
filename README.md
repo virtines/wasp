@@ -31,20 +31,32 @@ virtine int foo(int arg) {
 Nicholas C. Wanninger, Joshua J. Bowden, Kyle C. Hale<br>
 The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
-## Environment Setup
+### Experimental Platform in the Paper
+Note that the experiments in the paper were run on a Dell PowerEdge R6415
+running Linux, specifically Fedora Server 34 with stock kernel version 5.9.12.
+This machine has an AMD EPYC 7281 (Naples; 16 cores; 2.69 GHz) CPU with 32 GB
+DDR4. We disabled hyperthreading, turbo boost, and DVFS to mitigate measurement
+noise. We used gcc 10.2.1 to compile Wasp (C/C++), clang 10.0.1 for our C-based
+virtine language extensions, and NASM v2.14 for assembly-only virtines. The data and plots
+used in the paper can be found in `data_example/
+
+
+## Build Instructions
+
+### Environment Setup
 
 Wasp can be built and evaluated on any Linux x86 hardware that supports
 hardware virtualization through KVM. For evaluating the artifacts, we recommend
 an allocation on Cloudlab or Chameleon Cloud, as outlined below:
 
-### Cloudlab Configuration
+**Cloudlab Configuration**:
 
 - Apply for a Cloudlab account if you do not have one
 - Once logged in, Click `Experiments` then `Create Experiment Profile`
 - Upload the `cloudlab.profile` file provided in the root of this repo
 - Create the instance using that profile and SSH into it following cloudlab's docs
 
-### Chameleon Configuration
+**Chameleon Configuration**:
 - Apply for a Chameleon account if you do not already have one.
 - Allocate a lease for one host (any x86 host with virtualization hardware should do, though we've tested on the default Haswell and Skylake nodes). 
 - Select "Images" from the side bar and search for the "CC-Ubuntu20.04". Create an instance from this image by selecting
@@ -53,8 +65,6 @@ you set up a key pair and a floating IP so you can ssh to the instance.
 - Once the instance launches, ssh to it using the default Chameleon account (e.g., `ssh cc@192.168.1.1`). 
 
 Now you can proceed to building and running Wasp, described below. 
-
-## Build Instructions
 
 ### Prerequisites 
 
