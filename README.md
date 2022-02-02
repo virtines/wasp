@@ -64,7 +64,8 @@ The following packages are necessary to get Wasp running:
 - `clang` version 10 or newer
 - `llvm` and `llvm-dev`
 - `cmake` 
-- `python3.8-venv` 
+- `python3.8-venv` (for plotting)
+- `openssl` (only for OpenSSL example)
 
 Additionally, you must be on a Linux box with KVM support (you can check with
 `lsmod | grep kvm`), i.e., a baremetal machine or one that supports nested
@@ -75,7 +76,7 @@ For example, on an Ubuntu 20.04 LTS machine:
 
 ```bash
 sudo apt update
-sudo apt install -y cmake nasm llvm llvm-dev clang libcurl4-openssl-dev python3.8-venv
+sudo apt install -y cmake nasm llvm llvm-dev clang libcurl4-openssl-dev python3.8-venv openssl
 ```
 
 ### Building and Installing
@@ -128,7 +129,7 @@ what is included from the paper:
 - Virtine creation latency microbenchmark (`fig11.pdf`); Figure 11 from the paper.
 - Effect of image size on virtine start-up latency  (`fig12.pdf`); Figure 12 from the paper.
 - Virtine HTTP server performance (`fig13_tput.pdf`, `fig13_lat.pdf`); Figure 13 from the paper.
-- OpenSSL data (`data/openssl.txt`); Section 6.4 from the paper.
+- OpenSSL data (`data/openssl.txt` and `data/openssl_baseline.txt`); Section 6.4 from the paper.
 - JavaScript virtines performance (`fig14.pdf`); Figure 14 from the paper.
 
 
