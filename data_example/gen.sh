@@ -7,7 +7,7 @@ echo "of processors and microarchitectures. Software/Hardware details are below:
 
 for d in */;
 do
-	if [ -d "$d/data" ]; then
+	if [ -d "$d/data/uname" ]; then
 		echo "## [$d](https://github.com/virtines/wasp/tree/main/data_example/$d)"
 		echo '- Software: ' $(cat "$d/data/uname")
 		echo '- Hardware:'
