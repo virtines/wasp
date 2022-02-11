@@ -18,6 +18,7 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <wasp/Virtine.h>
+#include <wasp/KVMVirtualMachine.h>
 #include <stdexcept>
 
 struct cpuid_regs {
@@ -35,6 +36,8 @@ static void filter_cpuid(struct kvm_cpuid2 *);
 static int g_kvmfd = -1;
 
 wasp::Virtine::Virtine() {
+  m_vm = std::make_unique<wasp::KVMVirtualMachine>();
+
   if (g_kvmfd == -1) {
     g_kvmfd = open("/dev/kvm", O_RDWR);
     if (g_kvmfd == -1) throw std::runtime_error("unable to open /dev/kvm");
@@ -60,7 +63,6 @@ wasp::Virtine::Virtine() {
 
 
 
-#if 1
   // get cpuid info
   struct kvm_cpuid2 *kvm_cpuid = NULL;
   kvm_cpuid = (kvm_cpuid2 *)calloc(1, sizeof(*kvm_cpuid) + MAX_KVM_CPUID_ENTRIES * sizeof(*kvm_cpuid->entries));
@@ -78,7 +80,6 @@ wasp::Virtine::Virtine() {
   }
 
   free(kvm_cpuid);
-#endif
 
   int kvm_run_size = ioctl(m_kvmfd, KVM_GET_VCPU_MMAP_SIZE, nullptr);
   // allocate the "run state"
@@ -218,7 +219,7 @@ top:
 
   switch (stat) {
     case KVM_EXIT_HLT:
-      return wasp::ExitReason::Halted;
+      return wasp::ExitReason::Exited;
     case KVM_EXIT_INTR:
       return wasp::ExitReason::Interrupted;
     case KVM_EXIT_SHUTDOWN:

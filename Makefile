@@ -32,15 +32,15 @@ clean:
 install:
 	@mkdir -p /usr/local/lib/virtine
 	@mkdir -p /usr/local/include/wasp
-	@install -m 755 build/libwasp.so /usr/local/lib/libwasp.so
-	@install -m 755 include/virtine.h /usr/local/include/virtine.h
-	@install -m 755 -D include/wasp/* -t /usr/local/include/wasp/
-	@install -m 755 build/VirtinePass.so /usr/local/lib/virtine/VirtinePass.so
-	@install -m 755 build/libc.a /usr/local/lib/virtine/virtine_libc.a
-	@install -m 755 build/libm.a /usr/local/lib/virtine/virtine_libm.a
-	@install -m 755 pass/rt/boot64.asm /usr/local/lib/virtine/boot64.asm
-	@install -m 755 pass/rt/link64.ld /usr/local/lib/virtine/link64.ld
-	@install -m 755 pass/vcc /usr/local/bin/vcc
+	install -m 755 build/libwasp.so /usr/local/lib/libwasp.so
+	install -m 755 include/virtine.h /usr/local/include/virtine.h
+	install -m 755 -D include/wasp/* -t /usr/local/include/wasp/
+	install -m 755 build/VirtinePass.so /usr/local/lib/virtine/VirtinePass.so
+	install -m 755 build/libc.a /usr/local/lib/virtine/virtine_libc.a
+	install -m 755 build/libm.a /usr/local/lib/virtine/virtine_libm.a
+	install -m 755 pass/rt/boot64.asm /usr/local/lib/virtine/boot64.asm
+	install -m 755 pass/rt/link64.ld /usr/local/lib/virtine/link64.ld
+	install -m 755 pass/vcc /usr/local/bin/vcc
 
 
 

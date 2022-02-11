@@ -17,6 +17,8 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <vector>
+#include <wasp/VirtualMachine.h>
+#include <memory>
 
 namespace wasp {
 
@@ -24,9 +26,8 @@ namespace wasp {
     Unknown = 0,
     Crashed = 1,
     Interrupted = 2,
-    Halted = 3,  // generic case, typically not bad to just continue afterwards
-    HyperCall = 4,
-    Exited = 5,
+    HyperCall = 3,
+    Exited = 4,
   };
 
   using VirtineRegisters = kvm_regs;
@@ -109,6 +110,7 @@ namespace wasp {
     inline void set_reset_mask(ResetState *mask) { m_reset_mask = mask; }
 
    private:
+		std::unique_ptr<wasp::VirtualMachine> m_vm;
     bool m_halted = true;
 
     // fields
