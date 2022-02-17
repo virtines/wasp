@@ -240,8 +240,10 @@ std::vector<uint8_t> VirtineCompiler::compile(void) {
   final_objects.push_back("/usr/local/lib/virtine/virtine_libc.a");
   final_objects.push_back("/usr/local/lib/virtine/virtine_libm.a");
 
+	std::cout << "runtime src: " << runtime_src << std::endl;
   // check if a runtime assembly file exists?
   if (access(runtime_src.data(), F_OK) != -1) {
+	std::cout << "found runtime src: " << runtime_src << std::endl;
     ck::exec("gcc", "-c", "-no-pie", "-o", runtime_obj, runtime_src);
     final_objects.push_back(runtime_obj);
   }
