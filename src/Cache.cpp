@@ -15,6 +15,15 @@
 #include <string.h>
 
 wasp::Cache::~Cache(void) {
+  static int stats = getenv("WASP_DUMP_CACHE_STATS") != NULL;
+
+	if (stats) {
+		fprintf(stderr, "Hits: %zu\n", m_hits);
+		fprintf(stderr, "Misses: %zu\n", m_misses);
+		fprintf(stderr, "Size: %zu\n", size());
+	}
+
+
   while (m_cache.size() > 0) {
     auto *v = m_cache.front();
     m_cache.pop_front();
@@ -86,8 +95,10 @@ wasp::Virtine *wasp::Cache::get() {
   lock();
   // if there are no virtines ready, create one
   if (m_cache.size() == 0) {
+		m_misses++;
     v = allocate();
   } else {
+		m_hits++;
     v = m_cache.front();
     m_cache.pop_front();
   }
