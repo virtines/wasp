@@ -47,7 +47,7 @@ namespace wasp {
 		}
 		
 		auto misses(void) const {
-			return m_hits;
+			return m_misses;
 		}
 
    private:
