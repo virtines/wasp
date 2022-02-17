@@ -19,6 +19,12 @@ add_library(wasp SHARED
 	src/binding.cpp
 	)
 
+add_library(wasp_js_x SHARED
+	src/Virtine.cpp
+	src/Cache.cpp
+	test/js/wasp_js_x.cpp
+	)
+
 
 install(TARGETS wasp LIBRARY DESTINATION lib)
 install(
