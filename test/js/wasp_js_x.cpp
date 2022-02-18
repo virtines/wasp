@@ -98,6 +98,10 @@ class VirtineJSEngine {
     cache.set_binary(bin, sz, 0x8000);
   }
 
+  void get_cache_stats(int *misses, int *hits) {
+    *misses = cache.misses();
+    *hits = cache.hits();
+  }
 
   std::string evaluate(const std::string &code) {
     void *argument = (void *)code.data();
@@ -222,8 +226,7 @@ extern "C" char* js_x(char* code1) {
 }
 
 extern "C" void get_cache_stats(int *misses, int *hits) {
-  *misses = engine.cache.misses();
-  *hits = engine.cache.hits();
+  engine.get_cache_stats(misses, hits);
 }
 
 extern "C" void foo(){
