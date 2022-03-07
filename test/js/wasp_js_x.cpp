@@ -11,6 +11,9 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>  //std::stringstream
+#include <sched.h>
+#include <atomic>
+#include "wasp_js_x.h"
 
 #define JSINTERP_PATH "/home/cc/wasp/build/jsinterp.bin"
 
@@ -75,15 +78,19 @@ void dump_regs(wasp::VirtineRegisters *tf) {
 
 
 static bool use_snapshots = true;
-static bool do_teardown = true;
+static bool do_teardown = false;
 static bool quiet = false;
+
+
+static std::atomic<int> hits;
+static std::atomic<int> misses;
 
 
 class VirtineJSEngine {
   wasp::Cache cache;
 
  public:
-  VirtineJSEngine() : cache(1024 * 1024 * 1) {
+  VirtineJSEngine() : cache(1024 * 1024 * 1)  {
     FILE *stream = fopen(JSINTERP_PATH, "r");
     if (stream == NULL) abort();
 
@@ -103,15 +110,23 @@ class VirtineJSEngine {
     *hits = cache.hits();
   }
 
-  std::string evaluate(const std::string &code) {
-    void *argument = (void *)code.data();
-    size_t argsize = code.size();
+  std::string evaluate(const char *code) {
+    void *argument = (void *)code;
+    size_t argsize = strlen(code);
 
+    int old_hits = cache.hits();
     wasp::Virtine *v = cache.get();
+    auto cur_hits = cache.hits();
+    if (old_hits != cur_hits) {
+      ::hits++;
+    } else {
+      ::misses++;
+    }
+
     bool done = false;
     std::string result;
-
     *v->translate<int>(0x1000) = do_teardown;
+
     while (!done) {
       int ex = v->run();
       if (ex == wasp::ExitReason::Crashed) {
@@ -122,8 +137,10 @@ class VirtineJSEngine {
 				printf("exit\n");
         break;
       }
+
       if (ex == wasp::ExitReason::HyperCall) {
         auto regs = v->read_regs();
+
 
         int nr = regs.rdi;
         long long arg1 = regs.rsi;
@@ -216,17 +233,20 @@ class VirtineJSEngine {
   }
 };
 
-static VirtineJSEngine engine;
-
+// static VirtineJSEngine engine;
+static thread_local VirtineJSEngine engine;
 
 extern "C" char* js_x(char* code1) {
-  std::string code = std::string(code1);
-  std::string ret = engine.evaluate(code);
+  auto start = wasp::time_us();
+  std::string ret = engine.evaluate(code1);
+  auto end = wasp::time_us();
+  fprintf(stderr,"exec: %lu, %lu, %d, %d\n", wasp::time_us(), end - start, hits.load(), misses.load());
   return (char*)ret.c_str();
 }
 
 extern "C" void get_cache_stats(int *misses, int *hits) {
-  engine.get_cache_stats(misses, hits);
+  *hits = ::hits.load();
+  *misses = ::misses.load();
 }
 
 extern "C" void foo(){
