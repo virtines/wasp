@@ -210,7 +210,7 @@ The final application can be compiled and run as follows:
 
 ```bash
 nasm -fbin virtine.asm -o virtine.bin
-g++ -lwasp host.cpp -o host
+g++ host.cpp -o host -lwasp
 ./host
 ```
 This should produce no output. The virtine will simply exit immediately. See the `test/` directory for some more concrete examples.
