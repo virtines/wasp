@@ -241,7 +241,7 @@ int main(int argc, char **argv) {
 	while (1) {
 		// run the virtine, 
 		auto res = v->run();
-		if (res == wasp::ExitReason::Hypercall) {
+		if (res == wasp::ExitReason::HyperCall) {
 			// handle the hypercall by interfacing with the registers
 		}
 		if (res == wasp::ExitReason::Exited) break;

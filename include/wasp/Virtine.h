@@ -1,5 +1,5 @@
 #pragma once
-/* 
+/*
  * This file is part of the Wasp hypervisor developed at Illinois Institute of
  * Technology (HExSA Lab) and Northwestern University with funding from the
  * United States National Science Foundation.
@@ -60,9 +60,8 @@ namespace wasp {
     /* This function allocates the virtine's memory (single, contiguous block) */
     bool allocate_memory(size_t memsz);
 
-		// sets the memory to be some pointer given by the user. This does not free!
+    // sets the memory to be some pointer given by the user. This does not free!
     bool set_unowned_memory(size_t memsz, void *mem);
-
     // save the reset state with no memory regions (clears existing ones)
     void save_reset_state(void);
     // save the reset state
@@ -82,20 +81,26 @@ namespace wasp {
     // returns a KVM_EXIT_* when the Virtine can't handle it.
     wasp::ExitReason run(void);
 
+		// Read a virtine's general purpose registers
     void read_regs(VirtineRegisters &);
     auto inline read_regs(void) {
       wasp::VirtineRegisters regs;
       read_regs(regs);
       return regs;
     }
+
+		// Write a virtine's general purpose registers
     void write_regs(const VirtineRegisters &);
+		// Read and write a virtine's special registers (crX on x86)
     void read_sregs(VirtineSRegs &r);
     void write_sregs(const VirtineSRegs &);
+		// Read and write a virtine's floating point registers (xmmX on x86)
     void read_fpu(VirtineFPU &dst);
     void write_fpu(const VirtineFPU &src);
 
-    // Load a binary to a certain location and set the initial instruction pointer
+		// Load a binary from the filesystem and load it at `rip` in the virtine's address space
     bool load_binary(const char *path, off_t rip);
+		// Load a binary from memory into a virtine's address space at `rip`
     bool load_raw(void *bin, size_t size, off_t rip);
     // reset the virtine to it's original state (the `clean` operation)
     bool reset(void);
