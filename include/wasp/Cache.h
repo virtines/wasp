@@ -86,6 +86,8 @@ namespace wasp {
     size_t m_memsz;
     int locked = 0;
 
+		std::deque<wasp::Virtine *> m_cache;
+
     std::set<wasp::ThreadCacheManager *> m_tcms;
     std::map<pid_t, std::deque<wasp::Virtine *>> m_caches;
 

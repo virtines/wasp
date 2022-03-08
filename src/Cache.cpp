@@ -28,6 +28,7 @@ wasp::ThreadCacheManager::~ThreadCacheManager(void) {
 }
 
 void wasp::ThreadCacheManager::attach(wasp::Cache *c) {
+	return;
   caches.insert(c);
   c->attach(this);
 }
@@ -35,7 +36,8 @@ void wasp::ThreadCacheManager::attach(wasp::Cache *c) {
 
 
 std::deque<wasp::Virtine *> &wasp::Cache::get_cache(void) {
-  auto tid = gettid();
+	return m_cache;
+  auto tid = 0; // geattid();
   auto it = m_caches.find(tid);
   if (it == m_caches.end()) {
     tcacheman.attach(this);
@@ -119,6 +121,7 @@ void wasp::Cache::set_binary(const void *data, size_t size, off_t start) {
 
 
 void wasp::Cache::detach(wasp::ThreadCacheManager *tcm) {
+	return;
   lock();
 
   auto &c = m_caches[tcm->tid];
