@@ -68,6 +68,9 @@ build/fib.bin: test/fib/boot.asm test/fib/virtine.c
 build/http: test/http/http.c
 	@vcc -o $@ $<
 
+build/wasp_threads: test/js/wasp_threads.cpp
+	@vcc -lpthread -o $@ $<
+
 
 build/jsv/%.c.o: test/js/rt/%.c
 	@mkdir -p $(dir $@)

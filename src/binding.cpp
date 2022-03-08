@@ -368,3 +368,7 @@ void wasp::hexdump(void *vbuf, size_t len) {
     printf("|\n");
   }
 }
+
+extern "C" void foo(){
+  printf("inside foo()\n");
+}

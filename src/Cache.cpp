@@ -11,7 +11,7 @@
  * redistribute, and modify it as specified in the file "LICENSE.txt".
  */
 #include <wasp/Cache.h>
-
+#include <wasp/util.h>
 #include <string.h>
 
 wasp::Cache::~Cache(void) {
@@ -117,9 +117,13 @@ void wasp::Cache::ensure(int count) {
 
 
 void wasp::Cache::put(wasp::Virtine *v) {
+
+  // auto start = wasp::time_us();
   // TODO: do we need to move the virtine cleaning to another thread?
   v->reset();
   lock();
   m_cache.push_back(v);
   unlock();
+  // auto end = wasp::time_us();
+  // fprintf(stderr, "Cleanup: %luus\n", end - start);
 }

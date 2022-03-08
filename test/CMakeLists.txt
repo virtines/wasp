@@ -6,7 +6,7 @@ target_link_libraries(fib wasp)
 
 
 add_executable(js js/host.cpp)
-target_link_libraries(js wasp)
+target_link_libraries(js wasp pthread)
 
 
 add_executable(boottime boottime/main.cpp)
@@ -18,8 +18,6 @@ target_link_libraries(run wasp)
 add_executable(process_overhead process/main.cpp)
 target_link_libraries(process_overhead wasp)
 
-add_executable(pthread_overhead pthread/main.cpp)
-target_link_libraries(pthread_overhead wasp pthread)
 
 
 add_executable(create create/main.cpp)

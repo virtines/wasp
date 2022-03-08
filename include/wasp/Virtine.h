@@ -53,6 +53,7 @@ namespace wasp {
   // machine, it's CPU cores, and various memory states
   class Virtine final {
    public:
+   int64_t last_run = 0;
     // Use Virtine::create() instead
     Virtine();
     ~Virtine();

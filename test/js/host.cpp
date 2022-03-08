@@ -11,8 +11,9 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>  //std::stringstream
-
-#define TEST_PATH "build/jsinterp.bin"
+#include <pthread.h>
+#include <sched.h>
+#define TEST_PATH "/home/cc/wasp/Build/jsinterp.bin"
 
 
 
@@ -84,7 +85,7 @@ class VirtineJSEngine {
 
  public:
   VirtineJSEngine() : cache(1024 * 1024 * 1) {
-    FILE *stream = fopen("build/jsinterp.bin", "r");
+    FILE *stream = fopen("/home/cc/wasp/build/jsinterp.bin", "r");
     if (stream == NULL) abort();
 
     fseek(stream, 0, SEEK_END);
@@ -104,12 +105,21 @@ class VirtineJSEngine {
     size_t argsize = code.size();
 
     wasp::Virtine *v = cache.get();
+
     bool done = false;
     std::string result;
 
     *v->translate<int>(0x1000) = do_teardown;
+    int i = 0;
+    // printf("==\n");
     while (!done) {
+    auto start = wasp::time_us();
       int ex = v->run();
+      auto end = wasp::time_us();
+      if (true || i == 0) {
+          // printf("%lu us\n", end - start);
+      }
+      i++;
       if (ex == wasp::ExitReason::Crashed) {
 				printf("crash\n");
 				break;
@@ -211,6 +221,26 @@ class VirtineJSEngine {
     return result;
   }
 };
+VirtineJSEngine engine;
+
+
+std::string code;
+void *worker(void *p) {
+  long cpu = (long)p * 2;
+  cpu_set_t my_set;                                 /* Define your cpu_set bit mask. */
+  CPU_ZERO(&my_set);                                /* Initialize it all to 0, i.e. no CPUs selected. */
+  CPU_SET(cpu, &my_set);                            /* set the bit that represents core 7. */
+  sched_setaffinity(0, sizeof(cpu_set_t), &my_set); /* Set affinity of tihs process to */
+  sched_yield();
+  
+  for (int i = 0; true; i++) {
+    auto start = wasp::time_us();
+    engine.evaluate(code);
+    auto end = wasp::time_us();
+    // printf("%d, %d,%lu\n", gettid(), i, end - start);
+  }
+  return NULL;
+}
 
 int main(int argc, char **argv) {
   int opt;
@@ -233,7 +263,6 @@ int main(int argc, char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  VirtineJSEngine engine;
 
   void *argument = 0;
   size_t argsize = 0;
@@ -241,13 +270,21 @@ int main(int argc, char **argv) {
   std::ifstream t(argv[optind]);
   std::stringstream buffer;
   buffer << t.rdbuf();
-  std::string code = buffer.str();  // str holds the content of the file
+  code = buffer.str();  // str holds the content of the file
+
 
   printf("# trial, latency\n");
-  for (int i = 0; i < 100; i++) {
-    auto start = wasp::time_us();
-    engine.evaluate(code);
-    auto end = wasp::time_us();
-    printf("%d,%lu\n", i, end - start);
-  }
+
+  #define NTHREAD 24
+
+  pthread_t threads[NTHREAD];
+
+
+  for (int i = 0; i < NTHREAD; i++) 
+    pthread_create(&threads[i], NULL, worker, (void*)i);
+  for (int i = 0; i < NTHREAD; i++) 
+    pthread_join(threads[i], NULL);
+
+
+
 }
