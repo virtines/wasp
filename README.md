@@ -174,8 +174,8 @@ looks like this:
 int main(int argc, char **argv) {
 	wasp::Virtine virtine;
 
-	// allocate ram as a contiguous chunk of 16kb (in page alignments)
-	virtine.allocate_memory(4096 * 4);
+	// allocate a cache of virtines that all have 16 pages of memory
+	wasp::Cache cache(4096 * 16);
 
 	// load a flat binary into the virtine at address 0x8000
 	virtine.load_binary("virtine.bin", 0x8000);
@@ -227,8 +227,8 @@ only a few things change:
 
 int main(int argc, char **argv) {
 
-	// allocate a cache of virtines that all have 16kb of memory
-	wasp::Cache cache(4096 * 4);
+	// allocate a cache of virtines that all have 16 pages of memory
+	wasp::Cache cache(4096 * 16);
 
 	// load the binary on the cache, not each virtine
 	cache.load_binary("virtine.bin", 0x8000);
