@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
 		// run the virtine until it exits by some mechanism
 		//   (there will eventually be a timeout :^) )
 		auto res = virtine.run();
-		if (res == wasp::ExitReason::Hypercall) {
+		if (res == wasp::ExitReason::HyperCall) {
 			// handle the hypercall by interfacing with the registers
 		}
 		if (res == wasp::ExitReason::Exited) break;
