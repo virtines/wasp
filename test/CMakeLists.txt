@@ -22,6 +22,9 @@ add_executable(pthread_overhead pthread/main.cpp)
 target_link_libraries(pthread_overhead wasp pthread)
 
 
+add_executable(multithread multithread/main.cpp)
+target_link_libraries(multithread wasp pthread)
+
 add_executable(create create/main.cpp)
 target_link_libraries(create wasp)
 

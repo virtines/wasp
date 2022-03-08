@@ -18,8 +18,21 @@
 #include <mutex>
 #include <sys/stat.h>
 #include <wasp/Virtine.h>
+#include <set>
 
 namespace wasp {
+
+
+  class Cache;
+
+  struct ThreadCacheManager {
+    pid_t tid;
+    std::set<wasp::Cache *> caches;
+    ThreadCacheManager(void);
+    ~ThreadCacheManager(void);
+
+    void attach(wasp::Cache *c);
+  };
 
 
   class Cache final {
@@ -36,27 +49,45 @@ namespace wasp {
     void ensure(int count);
 
 
-		/* TODO: multithreading. Take the lock */
-    size_t size(void) const { return m_cache.size(); }
+    /* TODO: multithreading. Take the lock */
+    size_t size(void) {
+      lock();
+      size_t total = 0;
+      for (auto &c : m_caches)
+        total += c.second.size();
+      unlock();
+      return total;
+    }
     // the `data` arg must outlive the Cache
     void set_binary(const void *data, size_t size, off_t start);
     void load_binary(const char *bianry, off_t start);
 
-		auto hits(void) const {
-			return m_hits;
-		}
-		
-		auto misses(void) const {
-			return m_misses;
-		}
+    auto hits(void) const { return m_hits; }
+
+    auto misses(void) const { return m_misses; }
+
+
+    void clear_for_thread(void);
+
+
+   protected:
+    friend wasp::ThreadCacheManager;
+
+    // Will be called w/ lock held
+    void attach(wasp::ThreadCacheManager *tcm) { m_tcms.insert(tcm); }
+    // Will not be called w/ lock held unless wasp crashes :)
+    void detach(wasp::ThreadCacheManager *tcm);
 
    private:
+    std::deque<wasp::Virtine *> &get_cache(void);
     void lock(void);
     void unlock(void);
     // the size of a virtine's memory pool in this cache
     size_t m_memsz;
-    std::mutex m_lock;
-    std::deque<wasp::Virtine *> m_cache;
+    int locked = 0;
+
+    std::set<wasp::ThreadCacheManager *> m_tcms;
+    std::map<pid_t, std::deque<wasp::Virtine *>> m_caches;
 
     wasp::ResetState *m_reset = NULL;
 

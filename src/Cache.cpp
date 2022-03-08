@@ -14,26 +14,73 @@
 
 #include <string.h>
 
+
+static thread_local wasp::ThreadCacheManager tcacheman;
+
+
+wasp::ThreadCacheManager::ThreadCacheManager(void) { this->tid = gettid(); }
+
+
+wasp::ThreadCacheManager::~ThreadCacheManager(void) {
+  for (auto c : caches) {
+    c->detach(this);
+  }
+}
+
+void wasp::ThreadCacheManager::attach(wasp::Cache *c) {
+  caches.insert(c);
+  c->attach(this);
+}
+
+
+
+std::deque<wasp::Virtine *> &wasp::Cache::get_cache(void) {
+  auto tid = gettid();
+  auto it = m_caches.find(tid);
+  if (it == m_caches.end()) {
+    tcacheman.attach(this);
+    m_caches[tcacheman.tid] = {};
+    // just call recursively.
+    return get_cache();
+  }
+
+  return it->second;
+}
+
+
 wasp::Cache::~Cache(void) {
   static int stats = getenv("WASP_DUMP_CACHE_STATS") != NULL;
 
-	if (stats) {
-		fprintf(stderr, "Hits: %zu\n", m_hits);
-		fprintf(stderr, "Misses: %zu\n", m_misses);
-		fprintf(stderr, "Size: %zu\n", size());
-	}
+  if (stats) {
+    fprintf(stderr, "Hits: %zu\n", m_hits);
+    fprintf(stderr, "Misses: %zu\n", m_misses);
+    fprintf(stderr, "Size: %zu\n", size());
+  }
 
-
-  while (m_cache.size() > 0) {
-    auto *v = m_cache.front();
-    m_cache.pop_front();
-    delete v;
+  for (auto c : m_caches) {
+    while (c.second.size() > 0) {
+      auto *v = c.second.front();
+      c.second.pop_front();
+      delete v;
+    }
   }
 }
 
 
-void wasp::Cache::lock(void) { m_lock.lock(); }
-void wasp::Cache::unlock(void) { m_lock.unlock(); }
+
+#define ATOMIC_SET(thing) __atomic_test_and_set((thing), __ATOMIC_ACQUIRE)
+#define ATOMIC_CLEAR(thing) __atomic_clear((thing), __ATOMIC_RELEASE)
+#define ATOMIC_LOAD(thing) __atomic_load_n((thing), __ATOMIC_RELAXED)
+
+void wasp::Cache::lock(void) {
+  while (ATOMIC_SET(&locked)) {  // MESI protocol optimization
+    while (__atomic_load_n(&locked, __ATOMIC_RELAXED) == 1) {
+    }
+  }
+}
+
+
+void wasp::Cache::unlock(void) { ATOMIC_CLEAR(&locked); }
 
 wasp::Virtine *wasp::Cache::allocate() {
   auto *v = new wasp::Virtine();
@@ -71,6 +118,21 @@ void wasp::Cache::set_binary(const void *data, size_t size, off_t start) {
 }
 
 
+void wasp::Cache::detach(wasp::ThreadCacheManager *tcm) {
+  lock();
+
+  auto &c = m_caches[tcm->tid];
+  while (c.size() > 0) {
+    auto *v = c.front();
+    c.pop_front();
+    delete v;
+  }
+  m_caches.erase(tcm->tid);
+  m_tcms.erase(tcm);
+  unlock();
+}
+
+
 
 void wasp::Cache::load_binary(const char *binary, off_t start) {
   FILE *stream = fopen(binary, "r");
@@ -93,14 +155,15 @@ void wasp::Cache::load_binary(const char *binary, off_t start) {
 wasp::Virtine *wasp::Cache::get() {
   wasp::Virtine *v = nullptr;
   lock();
+  auto &cache = get_cache();
   // if there are no virtines ready, create one
-  if (m_cache.size() == 0) {
-		m_misses++;
+  if (cache.size() == 0) {
+    m_misses++;
     v = allocate();
   } else {
-		m_hits++;
-    v = m_cache.front();
-    m_cache.pop_front();
+    m_hits++;
+    v = cache.front();
+    cache.pop_front();
   }
 
   unlock();
@@ -109,8 +172,9 @@ wasp::Virtine *wasp::Cache::get() {
 
 void wasp::Cache::ensure(int count) {
   lock();
-  while (m_cache.size() < count) {
-    m_cache.push_front(allocate());
+  auto &cache = get_cache();
+  while (cache.size() < count) {
+    cache.push_front(allocate());
   }
   unlock();
 }
@@ -120,6 +184,8 @@ void wasp::Cache::put(wasp::Virtine *v) {
   // TODO: do we need to move the virtine cleaning to another thread?
   v->reset();
   lock();
-  m_cache.push_back(v);
+  auto &cache = get_cache();
+  cache.push_back(v);
   unlock();
 }
+
