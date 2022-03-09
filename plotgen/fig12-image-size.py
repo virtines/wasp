@@ -42,9 +42,9 @@ ax.tick_params(axis='x', rotation=90)
 
 ax.grid(visible=True, which='both', axis='y', alpha=0.5, zorder=0)
 
-ax.set_ylabel('Latency (ms)')
+ax.set_ylabel('Latency (us)')
 # ax.set_yticks([0, 500, 1000, 1500, 2000, 2500])
-ax.set_yticklabels(['0.0', '0.5', '1.0', '1.5', '2.0', '2.5'])
+# ax.set_yticklabels(['0.0', '0.5', '1.0', '1.5', '2.0', '2.5'])
 ax.set_xlabel('Virtine image Size')
 plt.tight_layout()
 plt.savefig(fname)
