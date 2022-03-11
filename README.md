@@ -173,12 +173,10 @@ looks like this:
 
 int main(int argc, char **argv) {
 	wasp::Virtine virtine;
-
-	// allocate a cache of virtines that all have 16 pages of memory
-	wasp::Cache cache(4096 * 16);
-
-	// load a flat binary into the virtine at address 0x8000
-	virtine.load_binary("virtine.bin", 0x8000);
+	// allocate 32kb to the virtine
+	virtine.allocate_memory(0x8000);
+	// load a flat binary into the virtine at address 0x1000
+	virtine.load_binary("virtine.bin", 0x1000);
 	while (1) {
 		// run the virtine until it exits by some mechanism
 		//   (there will eventually be a timeout :^) )
