@@ -14,4 +14,4 @@ preferred-citation:
   - family-names: "Hale"
     given-names: "Kyle"
   title: "Isolating Functions at the Hardware Limit with Virtines"
-  doi: "pending"
+  doi: 10.1145/3492321.3519553
