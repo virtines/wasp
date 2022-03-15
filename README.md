@@ -134,8 +134,9 @@ This will produce a `.tar` archive containing all relevant figures and data in `
 what is included from the paper:
 
 - Context creation experiment (`fig8.pdf`); Figures 2 and 8 from the paper. Figure 8 is a superset of Figure 2. 
-- Boot time breakdown (`data/table1.csv`); Table 1 from the paper.
-- Mode latency experiment (`fig3.pdf`); Figure 3 from the paper.
+- Boot time breakdown (`data/table1.csv`); Table 1 from the paper. 
+- Mode latency experiment (`fig3.pdf`); Figure 3 from the paper. Note that the version if this figure in the paper has a false origin; 
+  the plot generated here does not.
 - Echo server boot latency (`fig4.pdf`); Figure 4 from the paper.
 - Virtine creation latency microbenchmark (`fig11.pdf`); Figure 11 from the paper.
 - Effect of image size on virtine start-up latency  (`fig12.pdf`); Figure 12 from the paper.
