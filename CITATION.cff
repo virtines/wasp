@@ -7,7 +7,11 @@ preferred-citation:
     given-names: "Nick"
   - family-names: "Bowden"
     given-names: "Joshua"
+  - family-names: "Shetty"
+    given-names: "Kirtankumar"
+  - family-names: "Garg"
+    given-names: "Ayush"
   - family-names: "Hale"
     given-names: "Kyle"
   title: "Isolating Functions at the Hardware Limit with Virtines"
-  doi: "pending"
+  doi: 10.1145/3492321.3519553

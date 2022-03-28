@@ -1,5 +1,6 @@
 [![Build Status](https://app.travis-ci.com/virtines/wasp.svg?branch=main)](https://app.travis-ci.com/virtines/wasp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6350453.svg)](https://doi.org/10.5281/zenodo.6350453)
 
 # Wasp
 
@@ -23,7 +24,6 @@ virtine int foo(int arg) {
   * [Embedding Wasp](#embedding-wasp)
   * [Code Structure](#code-structure)
   * [Acknowledgements](#acknowledgements)
-  * [License](#license)
   * [Contact](#contact)
 
 ## Paper
@@ -133,8 +133,9 @@ This will produce a `.tar` archive containing all relevant figures and data in `
 what is included from the paper:
 
 - Context creation experiment (`fig8.pdf`); Figures 2 and 8 from the paper. Figure 8 is a superset of Figure 2. 
-- Boot time breakdown (`data/table1.csv`); Table 1 from the paper.
-- Mode latency experiment (`fig3.pdf`); Figure 3 from the paper.
+- Boot time breakdown (`data/table1.csv`); Table 1 from the paper. 
+- Mode latency experiment (`fig3.pdf`); Figure 3 from the paper. Note that the version if this figure in the paper has a false origin; 
+  the plot generated here does not.
 - Echo server boot latency (`fig4.pdf`); Figure 4 from the paper.
 - Virtine creation latency microbenchmark (`fig11.pdf`); Figure 11 from the paper.
 - Effect of image size on virtine start-up latency  (`fig12.pdf`); Figure 12 from the paper.
@@ -173,12 +174,10 @@ looks like this:
 
 int main(int argc, char **argv) {
 	wasp::Virtine virtine;
-
-	// allocate a cache of virtines that all have 16 pages of memory
-	wasp::Cache cache(4096 * 16);
-
-	// load a flat binary into the virtine at address 0x8000
-	virtine.load_binary("virtine.bin", 0x8000);
+	// allocate 32kb to the virtine
+	virtine.allocate_memory(0x8000);
+	// load a flat binary into the virtine at address 0x1000
+	virtine.load_binary("virtine.bin", 0x1000);
 	while (1) {
 		// run the virtine until it exits by some mechanism
 		//   (there will eventually be a timeout :^) )
@@ -299,9 +298,6 @@ software.
 Wasp and the virtines codebase were made possible with support from the
 United States [National Science
 Foundation](https://nsf.gov) (NSF) via grants [CNS-1730689](https://nsf.gov/awardsearch/showAward?AWD_ID=1730689&HistoricalAwards=false), [REU-1757964](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1757964), [CNS-1718252](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1718252&HistoricalAwards=false), and [CNS-1763612](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1763612&HistoricalAwards=false).<br>
-
-## License
-[![MIT License](http://seawisphunter.com/minibuffer/api/MIT-License-transparent.png)](https://github.com/HExSA-Lab/nautilus/blob/master/LICENSE.txt)
 
 ## Contact
 The Wasp/virtines codebase is currently maintained by Nicholas Wanninger (ncw [at] u [dot] northwestern [dot] edu).
