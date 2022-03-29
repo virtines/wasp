@@ -31,7 +31,8 @@ preferred-citation:
   publisher: "Association for Computing Machinery"
   conference:
     name: "EuroSys '22"
-  collection-title: "Proceedings of the Seventeenth European Conference on Computer Systems, April 5-8, 2022, Rennes, France"
+    location: "Rennes, France"
+  collection-title: "Proceedings of the Seventeenth European Conference on Computer Systems"
   year: 2022
   month: 4
   start: 644
