@@ -1,7 +1,20 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Wanninger"
+    given-names: "Nick"
+  - family-names: "Bowden"
+    given-names: "Joshua"
+  - family-names: "Hale"
+    given-names: "Kyle"
+doi: 10.5281/zenodo.6350453
+title: "Wasp Hypervisor"
+version: 1.0.1
+repository-code: "https://github.com/virtines/wasp"
+license: MIT
+message: "If you use this software, please cite both the article from preferred-citation and the software itself."
 preferred-citation:
-  type: article
+  type: conference-paper
   authors:
   - family-names: "Wanninger"
     given-names: "Nick"
@@ -14,4 +27,12 @@ preferred-citation:
   - family-names: "Hale"
     given-names: "Kyle"
   title: "Isolating Functions at the Hardware Limit with Virtines"
-  doi: 10.1145/3492321.3519553
+  doi: "10.1145/3492321.3519553"
+  publisher: "Association for Computing Machinery"
+  conference:
+    name: "EuroSys '22"
+  collection-title: "Proceedings of the Seventeenth European Conference on Computer Systems, April 5-8, 2022, Rennes, France"
+  year: 2022
+  month: 4
+  start: 644
+  end: 662
