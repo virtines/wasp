@@ -28,7 +28,7 @@ virtine int foo(int arg) {
 
 ## Paper
 * [Isolating Functions at the Hardware Limit with Virtines](https://nickw.io/papers/eurosys22.pdf)<br>
-Nicholas C. Wanninger, Joshua J. Bowden, Kyle C. Hale<br>
+Nicholas C. Wanninger, Joshua J. Bowden, Kirtankumar Shetty, Ayush Garg, Kyle C. Hale<br>
 The 17th European Conference on Computer Systems (EuroSys '22, to appear)
 
 ### Experimental Platform in the Paper
