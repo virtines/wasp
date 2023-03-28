@@ -72,8 +72,8 @@ The following packages are necessary to get Wasp running:
 - `nasm`
 - `libcurl` dev headers (`libcurl-dev` on recent Ubuntu is an aliased package; we had to use `libcurl4-openssl-dev`)
 - `clang` version 10 or newer
-- `llvm` and `llvm-dev`
-- `cmake` 
+- `llvm` and `llvm-dev` version 10 or newer
+- `cmake` version 12 or newer
 - `python3.8-venv` (for plotting)
 - `openssl` (only for OpenSSL example)
 
@@ -86,8 +86,27 @@ For example, on an Ubuntu 20.04 LTS machine:
 
 ```bash
 sudo apt update
-sudo apt install -y cmake nasm llvm llvm-dev clang libcurl4-openssl-dev python3.8-venv openssl
+sudo apt install -y cmake nasm llvm llvm-dev clang clang-10 libcurl4-openssl-dev python3.8-venv openssl
 ```
+
+If the `cmake` version installed (`cmake --version`) is less than 10, you can install the latest version as follows:
+```
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | sudo apt-key add -
+sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
+sudo apt-get update
+sudo apt install --reinstall cmake
+```
+
+If `llvm` is also not the required version installed (`llvm-config --version`), update it as follows:
+```
+wget --no-check-certificate -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+sudo add-apt-repository 'deb http://apt.llvm.org/bionic/   llvm-toolchain-bionic-10  main'
+sudo apt update && sudo apt-get install llvm-10 lldb-10 llvm-10-dev libllvm10 llvm-10-runtime
+sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-6.0 6
+sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-10 10
+sudo update-alternatives --config llvm-config
+```
+> N.B.: in the previous command lines, llvm-6.0 is the default version.
 
 ### Building and Installing
 
